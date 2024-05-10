@@ -14,26 +14,54 @@ plot_beta(0.5, 0.5)
 
 ```{r}
 # b
-plot_beta(1, 1)
-```
-
-```{r}
-# c
 plot_beta(2, 2)
 ```
 
 ```{r}
-# d
-plot_beta(6, 6)
-```
-
-```{r}
-# e
+# c
 plot_beta(6, 2)
 ```
 
 ```{r}
-# f
+# d
+plot_beta(1, 1)
+```
+
+```{r}
+# e
 plot_beta(0.5, 6)
 ```
 
+```{r}
+# f
+plot_beta(6, 6)
+```
+```{r}
+# a
+summarize_beta(0.5, 0.5)
+```
+
+```{r}
+# b
+summarize_beta(2, 2)
+```
+
+```{r}
+# c
+summarize_beta(6, 2)
+```
+
+```{r}
+# d
+summarize_beta(1, 1)
+```
+
+```{r}
+# e
+summarize_beta(0.5, 6)
+```
+
+```{r}
+# f
+summarize_beta(6, 6)
+```
