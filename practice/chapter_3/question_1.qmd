@@ -1,0 +1,29 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+```
+
+
+```{r}
+# a
+plot_beta(20, 30)
+```
+
+```{r}
+# b
+plot_beta(8000, 2000)
+```
+
+```{r}
+# c
+plot_beta(90, 10)
+```
+
+```{r}
+# d
+plot_beta(0.001, 0.001)
+```

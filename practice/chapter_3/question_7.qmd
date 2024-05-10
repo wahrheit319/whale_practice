@@ -1,0 +1,39 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+```
+
+```{r}
+# a
+plot_beta(0.5, 0.5)
+```
+
+```{r}
+# b
+plot_beta(1, 1)
+```
+
+```{r}
+# c
+plot_beta(2, 2)
+```
+
+```{r}
+# d
+plot_beta(6, 6)
+```
+
+```{r}
+# e
+plot_beta(6, 2)
+```
+
+```{r}
+# f
+plot_beta(0.5, 6)
+```
+
