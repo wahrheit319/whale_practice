@@ -1,0 +1,27 @@
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+# Set seed
+set.seed(33993)
+
+# Simulate 10000 trees
+trees <- data.frame(
+  infected = sample(c("mold", "no mold"), size = 10000, replace = TRUE, prob = c(0.18, 0.82))
+)
+
+# Set probabilities
+trees <- trees |>
+  mutate(species = case_when(
+    infected == "mold" ~ sample(c("elm", "maple", "other"), size = n(), replace = TRUE, prob = c(0.15, 0.80, 0.05)),
+    infected == "no mold" ~ sample(c("elm", "maple", "other"), size = n(), replace = TRUE, prob = c(0.20, 0.10, 0.70))
+  ))
+
+# Posterior probability that a maple tree has mold
+sum(trees$infected == "mold" & trees$species == "maple") / sum(trees$species == "maple")
+```
+
+
+

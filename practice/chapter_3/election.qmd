@@ -1,0 +1,59 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+```
+
+```{r}
+# Plot the Beta(45, 55) prior
+plot_beta(45, 55)
+```
+```{r}
+# alpha beta from prior 
+# y = number of success
+# n = number of trials
+plot_beta_binomial(alpha = 45, beta = 55, y = 30, n = 50)
+```
+
+```{r}
+# Summarize the difference between prior and posterior data
+summarize_beta_binomial(alpha = 45, beta = 55, y = 30, n = 50)
+```
+the mean is higher, the expected value of π nudged up from approximately 45% to 50%:
+
+the sd is lower, the variability within the model decreased, indicating a narrower range of posterior plausible  
+π values in light of the polling data
+
+```{r}
+set.seed(84735)
+michelle_sim <- data.frame(pi = rbeta(10000, 45, 55)) |> 
+  mutate(y = rbinom(10000, size = 50, prob = pi))
+```
+
+```{r}
+ggplot(michelle_sim, aes(x = pi, y = y)) + 
+  geom_point(aes(color = (y == 30)), size = 0.1)
+```
+
+```{r}
+# Keep only the simulated pairs that match our data
+michelle_posterior <- michelle_sim |>
+  filter(y == 30)
+
+# Plot the remaining pi values
+ggplot(michelle_posterior, aes(x = pi)) + 
+  geom_density()
+```
+
+```{r}
+michelle_posterior |>
+  summarize(mean(pi), sd(pi))
+```
+
+```{r}
+nrow(michelle_posterior)
+```
+

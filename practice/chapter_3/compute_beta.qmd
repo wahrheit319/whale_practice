@@ -1,0 +1,34 @@
+```{r}
+library(bayesrules)
+```
+
+```{r}
+# I really feel like there is something already built for this...
+# YES THERE IS, I will take this as a note then...
+
+summarize_beta_binomial(alpha = 45, beta = 55, y = 30, n = 50)
+```
+
+```{r}
+alpha <- 45
+beta <- 55
+
+mean_beta <- alpha / (alpha + beta)
+mode_beta <- (alpha - 1) / (alpha + beta - 2)
+var_beta <- (alpha * beta) / ((alpha + beta)^2 * (alpha + beta + 1))
+sd_beta <- sqrt(var_beta)
+
+print(paste("Mean:", mean_beta))
+print(paste("Mode:", mode_beta))
+print(paste("Variance:", var_beta))
+print(paste("Standard Deviation:", sd_beta))
+
+# Plot the Beta
+plot_beta(alpha, beta)
+```
+```
+
+
+
+
+

@@ -1,0 +1,36 @@
+```{r}
+# Set seed
+set.seed(33993)
+
+# Pis and priors
+pis <- c(0.4, 0.5, 0.6, 0.7)  
+priors <- c(0.1, 0.2, 0.44, 0.26) 
+
+# Number of trials and successes
+n <- 80        
+k <- 47         
+
+num_simulations <- 10000  # Number of simulations
+
+compute_posterior_sim <- function(n, k, pis, priors, num_simulations) {
+  # Initialize likelihoods
+  likelihoods <- numeric(length(pis))
+  
+  # Simulate data and calculate likelihoods
+  for (i in seq_along(pis)) {
+    simulated_counts <- rbinom(num_simulations, n, pis[i])
+    likelihoods[i] <- sum(simulated_counts == k) / num_simulations
+  }
+  
+  # Multiply likelihoods by the priors
+  weighted_likelihoods <- likelihoods * priors
+  
+  # Normalize to find posterior
+  posteriors <- weighted_likelihoods / sum(weighted_likelihoods)
+  
+  return(posteriors)
+}
+
+compute_posterior_sim(n, k, pis, priors, num_simulations)
+```
+

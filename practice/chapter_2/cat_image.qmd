@@ -1,0 +1,27 @@
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+# Set seed
+set.seed(33993)
+
+# Simulate data for 10,000 trials
+trial_data <- data.frame(
+  image_cat = rbinom(10000, 1, 0.08)  # Simulate cat images with 8% probability
+)
+
+# Set probabilities
+trial_data <- trial_data |>
+  mutate(
+    identified_as_cat = case_when(
+      image_cat == 1 ~ rbinom(10000, 1, 0.8) == 1,  
+      image_cat == 0 ~ rbinom(10000, 1, 0.5) == 1
+    )
+  )
+
+# # Posterior probability of correctly identified cat images
+mean(trial_data$image_cat[trial_data$identified_as_cat] == 1)
+```

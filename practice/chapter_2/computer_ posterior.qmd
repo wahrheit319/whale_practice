@@ -1,0 +1,18 @@
+```{r}
+# Pis and priors
+pis <- c(0.1, 0.25, 0.4)
+priors <- c(0.2, 0.45, 0.35)
+
+# Number of trials and successes
+n <- 7
+k <- 1
+
+# Likelihoods
+likelihoods <- dbinom(k, size = n, prob = pis)
+
+# Unnormalized posterior probabilities
+unnormalized_posteriors <- likelihoods * priors
+
+# Normalized posterior probabilities
+unnormalized_posteriors / sum(unnormalized_posteriors)
+```
