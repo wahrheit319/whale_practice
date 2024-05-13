@@ -25,20 +25,14 @@ gf_histogram(~ total_goals, data = wwc_2019_matches)
 # d
 sum_y <- sum(wwc_2019_matches$total_goals)
 n <- nrow(wwc_2019_matches)
-
-plot_gamma_poisson(shape = 1 + sum_y, rate = 0.25 + n, sum_y = sum_y, n = n)
+posterior_shape <- 1 + sum_y
+posterior_rate <- 0.25 + n
+summarize_gamma_poisson(shape = posterior_shape, rate = posterior_rate, sum_y = sum_y, n = n)
 ```
 
 ```{r}
-# Prior
-plot_gamma(shape = 1, rate = 0.25)
-
-# Likelihood
-plot_poisson_likelihood(y = wwc_2019_matches$total_goals, lambda_upper_bound = 20)
-
-# Posterior
-plot_gamma_poisson(shape = 1 + sum(wwc_2019_matches$total_goals), rate = 1 + nrow(wwc_2019_matches))
-
+# e
+plot_gamma_poisson(shape = 1 + sum_y, rate = 0.25 + n, sum_y = sum_y, n = n)
 ```
 
 
