@@ -9,7 +9,6 @@ format:
 editor: source
 ---
 
-
 ```{r}
 # Load packages
 library(bayesrules)
@@ -19,13 +18,14 @@ library(janitor)
 library(ggplot2)
 ```
 
-```{r}
-# a 
-plot_beta(100, 1)
-```
 
 ```{r}
-summarize_beta_binomial(alpha = 100, beta = 1, y = 50, n = 150)
-plot_beta_binomial(alpha = 100, beta = 1, y = 12, n = 50)
+# a
+summarize_beta_binomial(alpha = 3, beta = 3, y = 30, n = 40)
+plot_beta_binomial(alpha = 3, beta = 3, y = 30, n = 40)
 ```
-
+```{r}
+# b
+summarize_beta_binomial(alpha = 3, beta = 3, y = 15, n = 20)
+plot_beta_binomial(alpha = 3, beta = 3, y = 15, n = 20)
+```

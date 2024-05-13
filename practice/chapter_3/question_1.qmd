@@ -7,7 +7,6 @@ library(janitor)
 library(ggplot2)
 ```
 
-
 ```{r}
 # a
 plot_beta(20, 30)

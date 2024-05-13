@@ -9,7 +9,6 @@ format:
 editor: source
 ---
 
-
 ```{r}
 # Load packages
 library(bayesrules)

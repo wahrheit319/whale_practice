@@ -1,0 +1,68 @@
+---
+title: "question_4_6"
+author: "Yuese Li"
+date: "May 13, 2024"
+format: 
+  html: 
+    embed-resources: true
+    code-tools: true
+editor: source
+---
+
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(mosaic)
+```
+
+```{r}
+plot_beta(1, 2)
+plot_beta(0.5, 1)
+plot_beta(3, 10)
+plot_beta(2, 0.1)
+```
+
+```{r}
+set.seed(33993)
+
+n_samples <- 10000  
+
+kimya_sample <- rbeta(n_samples, shape1 = 4, shape2 = 6)
+fernando_sample <- rbeta(n_samples, shape1 = 3.5, shape2 = 5)
+ciara_sample <- rbeta(n_samples, shape1 = 6, shape2 = 14)
+taylor_samples <- rbeta(n_samples, shape1 = 5, shape2 = 4.1)
+
+gf_histogram(~ kimya_sample)
+gf_histogram(~ fernando_sample)
+gf_histogram(~ ciara_sample)
+gf_histogram(~ taylor_samples)
+
+mean(kimya_sample)
+mean(fernando_sample)
+mean(ciara_sample)
+mean(taylor_samples)
+```
+
+```{r}
+summarize_beta_binomial(alpha = 1, beta = 2, y = 3, n = 7)
+plot_beta_binomial(alpha = 1, beta = 2, y = 3, n = 7)
+```
+
+```{r}
+summarize_beta_binomial(alpha = 0.5, beta = 1, y = 3, n = 7)
+plot_beta_binomial(alpha = 0.5, beta = 1, y = 3, n = 7)
+```
+
+```{r}
+summarize_beta_binomial(alpha = 3, beta = 10, y = 3, n = 7)
+plot_beta_binomial(alpha = 3, beta = 10, y = 3, n = 7)
+```
+
+```{r}
+summarize_beta_binomial(alpha = 2, beta = 0.1, y = 3, n = 7)
+plot_beta_binomial(alpha = 2, beta = 0.1, y = 3, n = 7)
+```
