@@ -1,0 +1,30 @@
+---
+title: "question_10"
+author: "Yuese Li"
+date: "May 13, 2024"
+format: 
+  html: 
+    embed-resources: true
+    code-tools: true
+editor: source
+---
+
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(mosaic)
+```
+
+
+```{r}
+plot_beta_binomial(alpha = 0.5, beta = 0.5, y = 8, n = 10)
+plot_beta_binomial(alpha = 0.5, beta = 0.5, y = 3, n = 13)
+plot_beta_binomial(alpha = 10, beta = 1, y = 2, n = 16)
+plot_beta_binomial(alpha = 8, beta = 3, y = 7, n = 10)
+plot_beta_binomial(alpha = 2, beta = 2, y = 3, n = 6)
+plot_beta_binomial(alpha = 1, beta = 1, y = 29, n = 31)
+```

@@ -16,6 +16,7 @@ library(tidyverse)
 library(dplyr)
 library(janitor)
 library(ggplot2)
+library(mosaic)
 ```
 
 ```{r}
@@ -47,17 +48,17 @@ bechdel |>
 
 ```{r}
 # Nadide 
-bechdel %>% 
-  filter(year == 2000) %>% 
-  tabyl(binary) %>% 
+bechdel |> 
+  filter(year == 2000) |> 
+  tabyl(binary) |> 
   adorn_totals("row")
 ```
 
 ```{r}
 # Ursula 
-bechdel %>% 
-  filter(year == 2013) %>% 
-  tabyl(binary) %>% 
+bechdel |> 
+  filter(year == 2013) |> 
+  tabyl(binary) |> 
   adorn_totals("row")
 ```
 

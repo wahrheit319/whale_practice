@@ -1,0 +1,43 @@
+---
+title: "question_17_18"
+author: "Yuese Li"
+date: "May 13, 2024"
+format: 
+  html: 
+    embed-resources: true
+    code-tools: true
+editor: source
+---
+
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(mosaic)
+```
+
+```{r}
+# 17
+plot_beta(4, 3)
+```
+
+
+```{r}
+# 17
+plot_beta_binomial(alpha = 4, beta = 3, y = 0, n = 1)
+plot_beta_binomial(alpha = 4, beta = 3, y = 3, n = 10)
+plot_beta_binomial(alpha = 4, beta = 3, y = 20, n = 100)
+```
+
+```{r}
+# 18
+plot_beta(4, 3)
+plot_beta(4, 4)
+plot_beta(7, 11)
+plot_beta(27, 91)
+plot_beta(35, 66) # ?
+```
+
