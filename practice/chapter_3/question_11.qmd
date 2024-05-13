@@ -29,5 +29,6 @@ plot_beta(6, 18)
 ```
 ```{r}
 summarize_beta_binomial(alpha = 6, beta = 18, y = 15, n = 50)
+plot_beta_binomial(alpha = 6, beta = 18, y = 15, n = 50)
 ```
 
