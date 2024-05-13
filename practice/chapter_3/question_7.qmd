@@ -1,3 +1,15 @@
+---
+title: "question_7"
+author: "Yuese Li"
+date: "May 10, 2024"
+format: 
+  html: 
+    embed-resources: true
+    code-tools: true
+editor: source
+---
+
+
 ```{r}
 # Load packages
 library(bayesrules)

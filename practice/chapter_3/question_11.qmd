@@ -1,0 +1,33 @@
+---
+title: "question_9"
+author: "Yuese Li"
+date: "May 13, 2024"
+format: 
+  html: 
+    embed-resources: true
+    code-tools: true
+editor: source
+---
+
+
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+```
+
+```{r}
+# a 
+# mean = 1/4
+# mode = 5/22
+# mode = (a - 1) / (a + b - 2) when a, b > 1     
+# (a-1) = 5, so a = 6, and b would be 18.
+plot_beta(6, 18)
+```
+```{r}
+summarize_beta_binomial(alpha = 6, beta = 18, y = 15, n = 50)
+```
+
