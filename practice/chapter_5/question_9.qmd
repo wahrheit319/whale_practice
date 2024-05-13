@@ -1,0 +1,32 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+library(fivethirtyeight)
+library(mosaic)
+```
+
+```{r}
+# a
+plot_normal(mean = 7.2, sd = 2.6)
+```
+
+```{r}
+# b
+pnorm(7.6, mean = 7.2, sd = 2.6, lower.tail = TRUE) - (1 - pnorm(7.6, mean = 7.2, sd = 2.6))
+```
+
+```{r}
+# c
+1 - pnorm(4, mean = 7.2, sd = 2.6)
+```
+
+```{r}
+# d
+pnorm(0, mean = 7.2, sd = 2.6)
+```
+
+```{r}
+# e
+1 - pnorm(8, mean = 7.2, sd = 2.6)
+```
+

@@ -1,0 +1,15 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+library(fivethirtyeight)
+library(mosaic)
+```
+
+```{r}
+plot_normal(mean = mean(c(-4.3, 0.7, -19.4)), sd = 10)
+plot_normal(mean = mean(c(-12, 1.2, -4.5, 0.6)), sd = 6)
+plot_normal(mean = mean(c(12.4, 6.1)), sd = 5)
+plot_normal(mean = mean(c(1.6, 0.009, 1.7, 1.1, 1.1)), sd = 0.6)
+```
+
+
