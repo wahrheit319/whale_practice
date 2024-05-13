@@ -1,0 +1,13 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+```
+
+```{r}
+plot_gamma(shape = 400, rate = 80)
+```
+
+```{r}
+1 - pgamma(10, shape = 400, rate = 80)
+```
+

@@ -31,12 +31,12 @@ plot_normal(mean = 6.5, sd = 0.4)
 ```{r}
 # Load the data
 data(football)
-concussion_subjects <- football %>%
+concussion_subjects <- football |>
   filter(group == "fb_concuss")
 ```
 
 ```{r}
-concussion_subjects %>%
+concussion_subjects |>
   summarize(mean(volume))
 ```
 

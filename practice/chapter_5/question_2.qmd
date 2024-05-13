@@ -1,0 +1,14 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+```
+
+```{r}
+plot_poisson_likelihood(y = c(3, 7, 19), lambda_upper_bound = 20)
+plot_poisson_likelihood(y = c(12, 12, 12, 0), lambda_upper_bound = 20)
+plot_poisson_likelihood(y = 12, lambda_upper_bound = 20)
+plot_poisson_likelihood(y = c(16, 10, 17, 11, 11), lambda_upper_bound = 20)
+```
+
+
+

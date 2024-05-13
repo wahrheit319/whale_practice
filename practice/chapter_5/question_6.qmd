@@ -1,0 +1,34 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+```
+
+```{r}
+y <- c(7, 3, 8, 9, 10, 12)
+
+plot_poisson_likelihood(y = y, lambda_upper_bound = 20)
+```
+
+```{r}
+# Summarize y
+sum_y <- sum(y)
+n <- length(y)
+
+# Parameters for the posterior Gamma distribution
+shape_post <- 400 + sum_y
+rate_post <- 80 + n
+
+# Plot the prior and posterior
+plot_gamma(shape = 400, rate = 80)
+plot_gamma(shape = shape_post, rate = rate_post)
+```
+
+```{r}
+# Summarize the prior
+summarize_gamma_poisson(shape = 400, rate = 80, sum_y = sum_y, n = n)
+
+# Summarize the posterior
+summarize_gamma_poisson(shape = shape_post, rate = rate_post, sum_y = sum_y, n = n)
+
+```
+
