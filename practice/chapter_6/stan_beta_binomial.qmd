@@ -49,4 +49,50 @@ mcmc_dens(bb_sim, pars = "pi") +
   ylab("density")
 ```
 
+Comparing parallel chains
+
+```{r}
+# Density plots of individual chains
+mcmc_dens_overlay(bb_sim, pars = "pi") + 
+  ylab("density")
+```
+
+```{r}
+# STEP 2: SIMULATE the posterior
+bb_sim_short <- stan(model_code = bb_model, data = list(Y = 9), 
+                     chains = 4, iter = 50*2, seed = 84735)
+```
+
+```{r}
+# Trace plots of short chains
+mcmc_trace(bb_sim_short, pars = "pi")
+
+# Density plots of individual short chains
+mcmc_dens_overlay(bb_sim_short, pars = "pi")
+```
+
+Calculating effective sample size & autocorrelation
+```{r}
+# Calculate the effective sample size ratio
+neff_ratio(bb_sim, pars = c("pi"))
+```
+
+```{r}
+mcmc_trace(bb_sim, pars = "pi")
+mcmc_acf(bb_sim, pars = "pi")
+```
+
+```{r}
+# Simulate a thinned MCMC sample
+thinned_sim <- stan(model_code = bb_model, data = list(Y = 9), 
+                    chains = 4, iter = 5000*2, seed = 84735, thin = 10)
+
+# Check out the results
+mcmc_trace(thinned_sim, pars = "pi")
+mcmc_acf(thinned_sim, pars = "pi")
+```
+Calculating R-hat
+```{r}
+rhat(bb_sim, pars = "pi")
+```
 

@@ -1,0 +1,29 @@
+```{r}
+# Load necessary libraries
+library(rstan)
+library(bayesplot)
+library(magrittr)
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+# Density plots of individual chains
+mcmc_dens_overlay(bb_sim, pars = "pi") + 
+  ylab("density")
+```
+
+```{r}
+# STEP 2: SIMULATE the posterior
+bb_sim_short <- stan(model_code = bb_model, data = list(Y = 9), 
+                     chains = 4, iter = 50*2, seed = 84735)
+```
+
+```{r}
+# Trace plots of short chains
+mcmc_trace(bb_sim_short, pars = "pi")
+
+# Density plots of individual short chains
+mcmc_dens_overlay(bb_sim_short, pars = "pi")
+```
+
