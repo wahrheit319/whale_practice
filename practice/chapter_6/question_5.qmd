@@ -1,0 +1,58 @@
+```{r}
+# Load packages
+library(tidyverse)
+library(janitor)
+library(rstan)
+library(bayesplot)
+```
+
+```{r}
+# a
+# Step 1: Define the grid values
+grid_values <- c(0, 0.25, 0.5, 0.75, 1)
+grid_data <- data.frame(pi_grid = grid_values)
+
+# Step 2: Evaluate the prior & likelihood at each pi
+grid_data <- grid_data |>
+  mutate(prior = dbeta(pi_grid, 3, 8),
+         likelihood = dbinom(2, 10, pi_grid))
+
+# Step 3: Approximate the posterior
+grid_data <- grid_data |>
+  mutate(unnormalized = likelihood * prior,
+         posterior = unnormalized / sum(unnormalized))
+
+# Examine the grid approximated posterior
+round(grid_data, 2)
+
+# Plot the grid approximated posterior
+ggplot(grid_data, aes(x = pi_grid, y = posterior)) + 
+  geom_point() + 
+  geom_segment(aes(x = pi_grid, xend = pi_grid, y = 0, yend = posterior))
+
+```
+
+```{r}
+# b
+# Step 1: Define a grid of 201 values
+grid_data <- data.frame(pi_grid = seq(from = 0, to = 1, length = 201))
+
+# Step 2: Evaluate the prior & likelihood at each pi
+grid_data <- grid_data |>
+  mutate(prior = dbeta(pi_grid, 3, 8),
+         likelihood = dbinom(2, 10, pi_grid))
+
+# Step 3: Approximate the posterior
+grid_data <- grid_data |>
+  mutate(unnormalized = likelihood * prior,
+         posterior = unnormalized / sum(unnormalized))
+
+round(grid_data, 2)
+
+# Plot the grid approximated posterior
+ggplot(grid_data, aes(x = pi_grid, y = posterior)) + 
+  geom_point() + 
+  geom_segment(aes(x = pi_grid, xend = pi_grid, y = 0, yend = posterior))
+```
+
+

@@ -1,0 +1,57 @@
+```{r}
+# Load necessary package
+library(tidyverse)
+```
+
+```{r}
+# a
+# Define observed data
+data_points <- c(7.1, 8.9, 8.4, 8.6)
+
+# Step 1: Define grid values
+grid_data <- data.frame(mu_grid = 5:15)
+
+# Step 2: Evaluate the prior & likelihood at each mu
+grid_data <- grid_data |> 
+  mutate(prior = dnorm(mu_grid, mean = 10, sd = 1.2),
+         likelihood = sapply(mu_grid, function(mu) prod(dnorm(data_points, mean = mu, sd = 1.3))))
+
+# Step 3: Approximate the posterior
+grid_data <- grid_data |> 
+  mutate(unnormalized = likelihood * prior,
+         posterior = unnormalized / sum(unnormalized))
+
+# Examine the grid approximated posterior
+print(round(grid_data, 2))
+
+# Plot the grid approximated posterior
+ggplot(grid_data, aes(x = mu_grid, y = posterior)) + 
+  geom_point() + 
+  geom_segment(aes(x = mu_grid, xend = mu_grid, y = 0, yend = posterior))
+```
+
+```{r}
+# b
+# Step 1: Define a grid of 201 values
+grid_data <- data.frame(mu_grid = seq(from = 5, to = 15, length = 201))
+
+# Step 2: Evaluate the prior & likelihood at each mu
+grid_data <- grid_data |> 
+  mutate(prior = dnorm(mu_grid, mean = 10, sd = 1.2),
+         likelihood = sapply(mu_grid, function(mu) prod(dnorm(data_points, mean = mu, sd = 1.3))))
+
+# Step 3: Approximate the posterior
+grid_data <- grid_data |> 
+  mutate(unnormalized = likelihood * prior,
+         posterior = unnormalized / sum(unnormalized))
+
+# Examine the grid approximated posterior
+print(round(grid_data, 2))
+
+# Plot the grid approximated posterior
+ggplot(grid_data, aes(x = mu_grid, y = posterior)) + 
+  geom_point() + 
+  geom_segment(aes(x = mu_grid, xend = mu_grid, y = 0, yend = posterior))
+
+```
+
