@@ -40,6 +40,7 @@ traceplot(fit, pars = "pi")
 ```{r}
 # d
 stan_dens(fit, pars = "pi", separate_chains = TRUE)
+
 plot_beta(5, 16)
 ```
 
