@@ -2,28 +2,30 @@
 library(bayesrules)
 library(tidyverse)
 library(fivethirtyeight)
-```
-
-```{r}
-data(football)
-control_subjects <- football |>
-  filter(group == "control")
+library(ggformula)
 ```
 
 ```{r}
 # a
-control_summary <- control_subjects |>
-  summarize(mean_volume = mean(volume), sample_size = n())
+plot_normal(mean = 30, sd = 10)
 ```
 
 ```{r}
 # b
-summarize_normal_normal(mean = 6.5, sd = 0.4, sigma = 0.5, y_bar = control_summary$mean_volume, n = control_summary$sample_size)
+data(weather_perth)
+gf_histogram(~ temp3pm, data = weather_perth)
 ```
 
 ```{r}
 # c
-plot_normal_normal(mean = 6.5, sd = 0.4, sigma = 0.5, y_bar = control_summary$mean_volume, n = control_summary$sample_size)
+weather_summary <- weather_perth |>
+  summarize(mean_temp = mean(temp3pm), sample_size = n())
+summarize_normal_normal(mean = 30, sd = 10, sigma = 5, y_bar = weather_summary$mean_temp, n = weather_summary$sample_size)
+```
+
+```{r}
+# d
+plot_normal_normal(mean = 30, sd = 10, sigma = 5, y_bar = weather_summary$mean_temp, n = weather_summary$sample_size)
 ```
 
 
