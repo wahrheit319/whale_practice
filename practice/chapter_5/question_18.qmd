@@ -1,0 +1,17 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+```
+
+```{r}
+plot_gamma(shape = 4, rate = 8)
+plot_poisson_likelihood(y = c(3, 2, 5, 1, 2, rep(0, 15)), lambda_upper_bound = 2)
+plot_gamma_poisson(shape = 4, rate = 8, sum_y = 13, n = 20)
+```
+
+```{r}
+summarize_gamma_poisson(shape = 4, rate = 8, sum_y = 13, n = 20)
+```
+
+
+
