@@ -12,12 +12,12 @@ plot_normal(mean = 7.2, sd = 2.6)
 
 ```{r}
 # b
-pnorm(7.6, mean = 7.2, sd = 2.6, lower.tail = TRUE) - (1 - pnorm(7.6, mean = 7.2, sd = 2.6))
+pnorm(7.6, mean = 7.2, sd = 2.6) - pnorm(7.6, mean = 7.2, sd = 2.6, lower.tail = FALSE)
 ```
 
 ```{r}
 # c
-1 - pnorm(4, mean = 7.2, sd = 2.6)
+pnorm(4, mean = 7.2, sd = 2.6, lower.tail = FALSE)
 ```
 
 ```{r}
@@ -27,6 +27,6 @@ pnorm(0, mean = 7.2, sd = 2.6)
 
 ```{r}
 # e
-1 - pnorm(8, mean = 7.2, sd = 2.6)
+pnorm(8, mean = 7.2, sd = 2.6, lower.tail = FALSE)
 ```
 

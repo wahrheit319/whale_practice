@@ -1,0 +1,31 @@
+```{r}
+library(bayesrules)
+```
+
+```{r}
+# a
+plot_normal_likelihood(y = c(-0.7, 1.2, 4.5, -4), sigma = 2)
+```
+
+```{r}
+# b
+plot_normal_normal(mean = 7.2, sd = 2.6, sigma = 2, 
+                   y_bar = 0.25, n = 4)
+```
+
+```{r}
+# c
+summarize_normal_normal(mean = 7.2, sd = 2.6, sigma = 2, 
+                        y_bar = 0.25, n = 4)
+```
+
+```{r}
+# e
+pnorm(0, mean = 1.145619, sd = 0.9333456)
+```
+
+```{r}
+# f
+pnorm(8, mean = 1.145619, sd = 0.9333456, lower.tail = FALSE)
+```
+

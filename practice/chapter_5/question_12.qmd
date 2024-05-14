@@ -1,0 +1,29 @@
+```{r}
+library(bayesrules)
+library(tidyverse)
+library(fivethirtyeight)
+```
+
+```{r}
+data(football)
+control_subjects <- football |>
+  filter(group == "control")
+```
+
+```{r}
+# a
+control_summary <- control_subjects |>
+  summarize(mean_volume = mean(volume), sample_size = n())
+```
+
+```{r}
+# b
+summarize_normal_normal(mean = 6.5, sd = 0.4, sigma = 0.5, y_bar = control_summary$mean_volume, n = control_summary$sample_size)
+```
+
+```{r}
+# c
+plot_normal_normal(mean = 6.5, sd = 0.4, sigma = 0.5, y_bar = control_summary$mean_volume, n = control_summary$sample_size)
+```
+
+

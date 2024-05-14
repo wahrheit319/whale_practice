@@ -1,0 +1,19 @@
+```{r}
+library(bayesrules)
+```
+
+```{r}
+# a
+summarize_normal_normal(mean = 80, sd = 4, sigma = 3, y_bar = 86, n = 32)
+```
+
+```{r}
+# b
+summarize_normal_normal(mean = 80, sd = 4, sigma = 3, y_bar = 82, n = 32)
+```
+
+```{r}
+# c
+summarize_normal_normal(mean = 80, sd = 4, sigma = 3, y_bar = 84, n = 64)
+```
+
