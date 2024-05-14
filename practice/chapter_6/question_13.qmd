@@ -1,0 +1,46 @@
+```{r}
+# Load necessary libraries
+library(rstan)
+library(bayesplot)
+library(magrittr)
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+# a
+# RStan model code
+stan_code <- "
+data {
+  int<lower=0> n; // number of trials
+  int<lower=0> y; // number of successes
+}
+parameters {
+  real<lower=0, upper=1> pi; // probability of success
+}
+model {
+  pi ~ beta(3, 8); // prior
+  y ~ binomial(n, pi); // likelihood
+}
+"
+
+# Prepare data
+data <- list(n = 10, y = 2)
+
+# Fit model
+fit <- stan(model_code = stan_code, data = data, 
+            chains = 3, iter = 12000, warmup = 2000, thin = 1)
+```
+
+```{r}
+# b
+traceplot(fit, pars = "pi")
+```
+
+```{r}
+# d
+stan_dens(fit, pars = "pi", separate_chains = TRUE)
+plot_beta(5, 16)
+```
+
+

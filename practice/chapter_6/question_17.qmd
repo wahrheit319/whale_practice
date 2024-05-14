@@ -1,0 +1,47 @@
+```{r}
+# Load necessary libraries
+library(rstan)
+library(bayesplot)
+library(magrittr)
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+# a
+# RStan model code
+stan_code <- "
+data {
+  int<lower=0> N; // number of observations
+  real Y[N]; // observed values
+}
+parameters {
+  real mu; // mean parameter
+}
+model {
+  mu ~ normal(10, 1.2); // prior
+  for (n in 1:N)
+    Y[n] ~ normal(mu, 1.3); // likelihood
+}
+"
+
+# Prepare data
+data <- list(N = 4, Y = c(7.1, 8.9, 8.4, 8.6))
+
+# Fit model
+fit <- stan(model_code = stan_code, data = data, 
+            chains = 4, iter = 10000, warmup = 2000, thin = 1)
+```
+
+
+```{r}
+# b 
+# Trace plots
+traceplot(fit, pars = "mu")
+
+# Density plot
+stan_dens(fit, pars = "mu", separate_chains = TRUE)
+
+plot_normal(10, 1.2^2)
+```
+

@@ -1,0 +1,48 @@
+```{r}
+# Load necessary libraries
+library(rstan)
+library(bayesplot)
+library(magrittr)
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+# a
+# RStan model code
+stan_code <- "
+data {
+  int<lower=0> N; // number of observations
+  int<lower=0> Y[N]; // observed counts
+}
+parameters {
+  real<lower=0> lambda; // rate parameter
+}
+model {
+  lambda ~ gamma(20, 5); // prior
+  for (n in 1:N)
+    Y[n] ~ poisson(lambda); // likelihood
+}
+"
+
+# Prepare data
+data <- list(N = 3, Y = c(0, 1, 0))
+
+# Fit model
+fit <- stan(model_code = stan_code, data = data, 
+            chains = 4, iter = 10000, warmup = 2000, thin = 1)
+
+```
+
+
+```{r}
+# b 
+# Trace plots
+traceplot(fit, pars = "lambda")
+
+# Density plot
+stan_dens(fit, pars = "lambda", separate_chains = TRUE)
+
+plot_gamma(21, 8)
+```
+
