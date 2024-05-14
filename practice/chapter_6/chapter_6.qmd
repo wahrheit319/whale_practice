@@ -1,0 +1,8 @@
+```{r}
+# Load packages
+library(tidyverse)
+library(janitor)
+library(rstan)
+library(bayesplot)
+```
+
