@@ -1,27 +1,27 @@
 ```{r}
-# Load necessary libraries
-library(rstan)
-library(bayesplot)
-library(magrittr)
+# Load packages
 library(tidyverse)
 library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
 ```
 
 ```{r}
 # a
 # RStan model code
 stan_code <- "
-data {
-  int<lower=0> n; // number of trials
-  int<lower=0> y; // number of successes
-}
-parameters {
-  real<lower=0, upper=1> pi; // probability of success
-}
-model {
-  pi ~ beta(3, 8); // prior
-  y ~ binomial(n, pi); // likelihood
-}
+  data {
+    int<lower=0> n; // number of trials
+    int<lower=0> y; // number of successes
+  }
+  parameters {
+    real<lower=0, upper=1> pi; // probability of success
+  }
+  model {
+    pi ~ beta(3, 8); // prior
+    y ~ binomial(n, pi); // likelihood
+  }
 "
 
 # Prepare data

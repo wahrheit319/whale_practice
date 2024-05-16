@@ -1,36 +1,45 @@
 ```{r}
-# Load necessary libraries
-library(rstan)
-library(bayesplot)
-library(magrittr)
+# Load packages
 library(tidyverse)
 library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
 ```
 
 ```{r}
 # STEP 1: DEFINE the model
 gp_model <- "
   data {
-    int<lower = 0> Y[2];
+    int<lower = 0> Y[2]; // observed counts, it could be any non-negative integers
   }
   parameters {
-    real<lower = 0> lambda;
+    real<lower = 0> lambda; // rate parameter of the Poisson distribution, it could be any non-negative real number
   }
   model {
-    Y ~ poisson(lambda);
-    lambda ~ gamma(3, 1);
+    Y ~ poisson(lambda); // likelihood: observed counts follow a Poisson distribution with rate parameter lambda
+    lambda ~ gamma(3, 1); // prior: lambda follows a gamma distribution with shape 3 and rate 1
   }
 "
 
 # STEP 2: SIMULATE the posterior
-gp_sim <- stan(model_code = gp_model, data = list(Y = c(2,8)), 
-               chains = 4, iter = 5000*2, seed = 84735)
+gp_sim <- stan(model_code = gp_model, 
+               data = list(Y = c(2, 8)),  # observed counts are 2 and 8
+               chains = 4,  # number of parallel Markov chains, different initial values for lambda
+               iter = 5000*2, # number of iterations, first half is burn-in
+               seed = 84735) # set a seed for reproducibility
+
+# total of 4 chains, each running 10000 iterations, 
+# and throw away the first 5000 iterations of each chain for burn-in, 
+# then we get 4 chains each with 5000 iterations, totaling 20000 iterations.
 ```
 
 ```{r}
 # Trace plots of the 4 Markov chains
 mcmc_trace(gp_sim, pars = "lambda", size = 0.1)
+```
 
+```{r}
 # Histogram of the Markov chain values
 mcmc_hist(gp_sim, pars = "lambda") + 
   yaxis_text(TRUE) + 
@@ -41,4 +50,5 @@ mcmc_dens(gp_sim, pars = "lambda") +
   yaxis_text(TRUE) + 
   ylab("density")
 ```
+
 

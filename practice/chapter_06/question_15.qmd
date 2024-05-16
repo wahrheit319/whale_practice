@@ -1,10 +1,10 @@
 ```{r}
-# Load necessary libraries
-library(rstan)
-library(bayesplot)
-library(magrittr)
+# Load packages
 library(tidyverse)
 library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
 ```
 
 ```{r}

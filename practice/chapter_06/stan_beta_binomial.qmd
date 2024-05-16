@@ -1,20 +1,20 @@
 ```{r}
-# Load necessary libraries
-library(rstan)
-library(bayesplot)
-library(magrittr)
+# Load packages
 library(tidyverse)
 library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
 ```
 
 ```{r}
 # STEP 1: DEFINE the model
 bb_model <- "
   data {
-    int<lower = 0, upper = 10> Y;
+    int<lower = 0, upper = 10> Y; // number of success, it could be any integer between 0 and 10
   }
   parameters {
-    real<lower = 0, upper = 1> pi;
+    real<lower = 0, upper = 1> pi; // probability of success, it could be any real number between 0 and 1
   }
   model {
     Y ~ binomial(10, pi);
@@ -25,14 +25,22 @@ bb_model <- "
 
 ```{r}
 # STEP 2: SIMULATE the posterior
-bb_sim <- stan(model_code = bb_model, data = list(Y = 9), 
-               chains = 4, iter = 5000*2, seed = 84735)
+bb_sim <- stan(model_code = bb_model, 
+               data = list(Y = 9),  # observed 9 success out of 10
+               chains = 4,  # number of parallel Markov chains, different number of pi
+               iter = 5000*2, # number of iteration, first half is burn-in
+               seed = 84735) # set a seed
+
+# total of 4 chain, each running 10000 iterations, 
+# and throw away the first 5000 iterations of each chain for burn in, 
+# then we get 4 chain each size 5000 iterations, total of 20000.
 ```
 
 ```{r}
 as.array(bb_sim, pars = "pi") %>% 
   head(4)
 ```
+
 ```{r}
 mcmc_trace(bb_sim, pars = "pi", size = 0.1)
 ```
