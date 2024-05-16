@@ -41,6 +41,22 @@ ggplot(grid_data, aes(x = pi_grid, y = posterior)) +
   geom_segment(aes(x = pi_grid, xend = pi_grid, y = 0, yend = posterior))
 
 ```
+```{r}
+# Set the seed
+set.seed(84735)
+
+# Step 4: sample from the discretized posterior
+post_sample <- sample_n(grid_data, size = 10000, 
+                        weight = posterior, replace = TRUE)
+```
+
+```{r}
+# Histogram of the grid simulation with posterior pdf
+ggplot(post_sample, aes(x = pi_grid)) + 
+  geom_histogram(aes(y = ..density..), color = "white") + 
+  stat_function(fun = dbeta, args = list(5, 16)) + 
+  lims(x = c(0, 1))
+```
 
 ```{r}
 # b
@@ -64,5 +80,20 @@ ggplot(grid_data, aes(x = pi_grid, y = posterior)) +
   geom_point() + 
   geom_segment(aes(x = pi_grid, xend = pi_grid, y = 0, yend = posterior))
 ```
+```{r}
+# Set the seed
+set.seed(84735)
 
+# Step 4: sample from the discretized posterior
+post_sample <- sample_n(grid_data, size = 10000, 
+                        weight = posterior, replace = TRUE)
+```
+
+```{r}
+# Histogram of the grid simulation with posterior pdf
+ggplot(post_sample, aes(x = pi_grid)) + 
+  geom_histogram(aes(y = ..density..), color = "white") + 
+  stat_function(fun = dbeta, args = list(5, 16)) + 
+  lims(x = c(0, 1))
+```
 
