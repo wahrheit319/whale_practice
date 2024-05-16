@@ -1,0 +1,85 @@
+```{r}
+# Load packages
+library(tidyverse)
+library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
+```
+
+```{r}
+# a
+# STEP 1: DEFINE the model
+bb_model <- "
+  data {
+    int<lower = 0, upper = 20> Y; // number of success, it could be any integer between 0 and 10
+  }
+  parameters {
+    real<lower = 0, upper = 1> pi; // probability of success, it could be any real number between 0 and 1
+  }
+  model {
+    Y ~ binomial(20, pi);
+    pi ~ beta(1, 1);
+  }
+"
+```
+
+```{r}
+# STEP 2: SIMULATE the posterior
+bb_sim <- stan(model_code = bb_model, 
+               data = list(Y = 9),  # observed 12 success out of 20
+               chains = 4,  # number of parallel Markov chains, different number of pi
+               iter = 5000*2, # number of iteration, first half is burn-in
+               seed = 84735) # set a seed
+```
+
+```{r}
+# STEP 1: DEFINE the model
+gp_model <- "
+  data {
+    int<lower = 0> Y; // observed counts, it could be any non-negative integers
+  }
+  parameters {
+    real<lower = 0> lambda; // rate parameter of the Poisson distribution, it could be any non-negative real number
+  }
+  model {
+    Y ~ poisson(lambda); // likelihood: observed counts follow a Poisson distribution with rate parameter lambda
+    lambda ~ gamma(4, 2); // prior: lambda follows a gamma distribution with shape 4 and rate 2
+  }
+"
+```
+
+```{r}
+gp_sim <- stan(model_code = gp_model, 
+                    data = list(Y = 3),  
+                    chains = 4,  
+                    iter = 5000*2, 
+                    seed = 84735)
+```
+
+```{r}
+# c
+# STEP 1: DEFINE the model
+normal_model <- "
+  data {
+    real Y;
+  }
+  parameters {
+    real mu;
+  }
+  model {
+    Y ~ normal(mu, 1); // likelihood
+    mu ~ normal(0, 10); // prior
+  }
+"
+```
+
+```{r}
+# STEP 2: SIMULATE the posterior
+normal_sim <- stan(model_code = normal_model, 
+                   data = list(Y = 12.2),  
+                   chains = 4,  
+                   iter = 5000*2, 
+                   seed = 84735)
+```
+

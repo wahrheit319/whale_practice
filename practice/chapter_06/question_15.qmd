@@ -9,40 +9,43 @@ library(bayesrules)
 
 ```{r}
 # a
-# RStan model code
-stan_code <- "
-data {
-  int<lower=0> N; // number of observations
-  int<lower=0> Y[N]; // observed counts
-}
-parameters {
-  real<lower=0> lambda; // rate parameter
-}
-model {
-  lambda ~ gamma(20, 5); // prior
-  for (n in 1:N)
-    Y[n] ~ poisson(lambda); // likelihood
-}
+# STEP 1: DEFINE the model
+gp_model <- "
+  data {
+    int<lower = 0> Y[3]; // observed counts, it could be any non-negative integers
+  }
+  parameters {
+    real<lower = 0> lambda; // rate parameter of the Poisson distribution, it could be any non-negative real number
+  }
+  model {
+    Y ~ poisson(lambda); // likelihood: observed counts follow a Poisson distribution with rate parameter lambda
+    lambda ~ gamma(20, 5); // prior: lambda follows a gamma distribution with shape 20 and rate 5
+  }
 "
 
-# Prepare data
-data <- list(N = 3, Y = c(0, 1, 0))
-
-# Fit model
-fit <- stan(model_code = stan_code, data = data, 
-            chains = 4, iter = 10000, warmup = 2000, thin = 1)
+# STEP 2: SIMULATE the posterior
+gp_sim <- stan(model_code = gp_model, 
+               data = list(Y = c(0, 1, 0)),  # observed counts are 0, 1, and 0
+               chains = 4,  # number of parallel Markov chains
+               iter = 10000, # number of iterations per chain
+               seed = 84735) # set a seed
 
 ```
 
 
 ```{r}
 # b 
-# Trace plots
-traceplot(fit, pars = "lambda")
+# Trace plots of the 4 Markov chains
+mcmc_trace(gp_sim, pars = "lambda", size = 0.1)
 
-# Density plot
-stan_dens(fit, pars = "lambda", separate_chains = TRUE)
+# Density plots of the 4 Markov chains
+mcmc_dens(gp_sim, pars = "lambda") + 
+  yaxis_text(TRUE) + 
+  ylab("density")
+```
 
-plot_gamma(21, 8)
+```{r}
+# d
+plot_gamma_poisson(shape = 20, rate = 5, sum_y = 1, n = 3)
 ```
 

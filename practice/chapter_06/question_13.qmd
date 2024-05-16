@@ -9,38 +9,42 @@ library(bayesrules)
 
 ```{r}
 # a
-# RStan model code
-stan_code <- "
+# STEP 1: DEFINE the model
+bb_model <- "
   data {
-    int<lower=0> n; // number of trials
-    int<lower=0> y; // number of successes
+    int<lower = 0, upper = 10> Y; // number of successes, it could be any integer between 0 and 10
   }
   parameters {
-    real<lower=0, upper=1> pi; // probability of success
+    real<lower = 0, upper = 1> pi; // probability of success, it could be any real number between 0 and 1
   }
   model {
-    pi ~ beta(3, 8); // prior
-    y ~ binomial(n, pi); // likelihood
+    Y ~ binomial(10, pi);
+    pi ~ beta(3, 8);
   }
 "
 
-# Prepare data
-data <- list(n = 10, y = 2)
-
-# Fit model
-fit <- stan(model_code = stan_code, data = data, 
-            chains = 3, iter = 12000, warmup = 2000, thin = 1)
+# STEP 2: SIMULATE the posterior
+bb_sim <- stan(model_code = bb_model, 
+               data = list(Y = 2),  # observed 2 successes out of 10
+               chains = 3,  # number of parallel Markov chains
+               iter = 12000, # number of iterations per chain
+               seed = 84735) # set a seed
 ```
 
 ```{r}
 # b
-traceplot(fit, pars = "pi")
+mcmc_trace(bb_sim, pars = "pi", size = 0.1)
+```
+```{r}
+# d
+# Density plot of the Markov chain values
+mcmc_dens(bb_sim, pars = "pi") + 
+  yaxis_text(TRUE) + 
+  ylab("density")
 ```
 
 ```{r}
 # d
-stan_dens(fit, pars = "pi", separate_chains = TRUE)
-
 plot_beta(5, 16)
 ```
 

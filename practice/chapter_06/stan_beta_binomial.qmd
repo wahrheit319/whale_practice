@@ -1,9 +1,10 @@
 ```{r}
-# Load packages
-library(tidyverse)
-library(janitor)
+# Load necessary libraries
 library(rstan)
 library(bayesplot)
+library(magrittr)
+library(tidyverse)
+library(janitor)
 library(bayesrules)
 ```
 
@@ -40,7 +41,6 @@ bb_sim <- stan(model_code = bb_model,
 as.array(bb_sim, pars = "pi") %>% 
   head(4)
 ```
-
 ```{r}
 mcmc_trace(bb_sim, pars = "pi", size = 0.1)
 ```
