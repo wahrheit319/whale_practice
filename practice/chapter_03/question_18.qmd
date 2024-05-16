@@ -24,6 +24,7 @@ library(ggplot2)
 summarize_beta_binomial(alpha = 3, beta = 3, y = 30, n = 40)
 plot_beta_binomial(alpha = 3, beta = 3, y = 30, n = 40)
 ```
+
 ```{r}
 # b
 summarize_beta_binomial(alpha = 3, beta = 3, y = 15, n = 20)

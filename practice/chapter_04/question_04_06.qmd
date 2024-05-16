@@ -1,5 +1,5 @@
 ---
-title: "question_4_6"
+title: "question_04_05_06"
 author: "Yuese Li"
 date: "May 13, 2024"
 format: 
@@ -66,3 +66,4 @@ plot_beta_binomial(alpha = 3, beta = 10, y = 3, n = 7)
 summarize_beta_binomial(alpha = 2, beta = 0.1, y = 3, n = 7)
 plot_beta_binomial(alpha = 2, beta = 0.1, y = 3, n = 7)
 ```
+

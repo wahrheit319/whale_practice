@@ -14,6 +14,7 @@ wwc_2019_matches <- wwc_2019_matches %>%
 ```{r}
 # a
 plot_gamma(shape = 1, rate = 0.25)
+summarize_gamma(shape = 1, rate = 0.25)
 ```
 
 ```{r}
@@ -23,16 +24,12 @@ gf_histogram(~ total_goals, data = wwc_2019_matches)
 
 ```{r}
 # d
-sum_y <- sum(wwc_2019_matches$total_goals)
-n <- nrow(wwc_2019_matches)
-posterior_shape <- 1 + sum_y
-posterior_rate <- 0.25 + n
-summarize_gamma_poisson(shape = posterior_shape, rate = posterior_rate, sum_y = sum_y, n = n)
+summarize_gamma_poisson(shape = 1, rate = 0.25, sum_y = sum(wwc_2019_matches$total_goals), n = nrow(wwc_2019_matches))
 ```
 
 ```{r}
 # e
-plot_gamma_poisson(shape = 1 + sum_y, rate = 0.25 + n, sum_y = sum_y, n = n)
+plot_gamma_poisson(shape = 1, rate = 0.25, sum_y = sum(wwc_2019_matches$total_goals), n = nrow(wwc_2019_matches))
 ```
 
 

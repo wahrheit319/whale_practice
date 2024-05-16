@@ -19,17 +19,25 @@ library(ggplot2)
 ```
 
 ```{r}
+# North Dakota
 summarize_beta(8, 2)
+
+# Louisiana
 summarize_beta(1, 20)
 ```
 
 ```{r}
+# North Dakota
 plot_beta(8, 2)
+
+# Louisiana
 plot_beta(1, 10)
 ```
 ```{r}
 # North Dakota
 summarize_beta_binomial(alpha = 8, beta = 2, y = 12, n = 50)
+
+# Louisiana
 plot_beta_binomial(alpha = 8, beta = 2, y = 12, n = 50)
 ```
 

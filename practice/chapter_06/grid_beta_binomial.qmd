@@ -13,8 +13,92 @@ grid_data <- data.frame(pi_grid = seq(from = 0, to = 1, length = 6))
 
 ```{r}
 # Step 2: Evaluate the prior & likelihood at each pi
-grid_data <- grid_data %>% 
+grid_data <- grid_data |> 
   mutate(prior = dbeta(pi_grid, 2, 2),
          likelihood = dbinom(9, 10, pi_grid))
+```
+
+```{r}
+# Step 3: Approximate the posterior
+grid_data <- grid_data |> 
+  mutate(unnormalized = likelihood * prior,
+         posterior = unnormalized / sum(unnormalized))
+
+# Confirm that the posterior approximation sums to 1
+grid_data |> 
+  summarize(sum(unnormalized), sum(posterior))
+```
+
+```{r}
+round(grid_data, 2)
+```
+
+```{r}
+# Plot the grid approximated posterior
+ggplot(grid_data, aes(x = pi_grid, y = posterior)) + 
+  geom_point() + 
+  geom_segment(aes(x = pi_grid, xend = pi_grid, y = 0, yend = posterior))
+```
+
+```{r}
+# Set the seed
+set.seed(84735)
+
+# Step 4: sample from the discretized posterior
+post_sample <- sample_n(grid_data, size = 10000, 
+                        weight = posterior, replace = TRUE)
+```
+
+```{r}
+# A table of the 10000 sample values
+post_sample |> 
+  tabyl(pi_grid) |> 
+  adorn_totals("row")
+```
+
+```{r}
+# Histogram of the grid simulation with posterior pdf
+ggplot(post_sample, aes(x = pi_grid)) + 
+  geom_histogram(aes(y = ..density..), color = "white") + 
+  stat_function(fun = dbeta, args = list(11, 3)) + 
+  lims(x = c(0, 1))
+```
+
+```{r}
+# Step 1: Define a grid of 101 pi values
+grid_data  <- data.frame(pi_grid = seq(from = 0, to = 1, length = 101))
+
+# Step 2: Evaluate the prior & likelihood at each pi
+grid_data <- grid_data |> 
+  mutate(prior = dbeta(pi_grid, 2, 2),
+         likelihood = dbinom(9, 10, pi_grid))
+
+
+# Step 3: Approximate the posterior
+grid_data <- grid_data |> 
+  mutate(unnormalized = likelihood * prior,
+         posterior = unnormalized / sum(unnormalized))
+```
+
+```{r}
+ggplot(grid_data, aes(x = pi_grid, y = posterior)) + 
+  geom_point() + 
+  geom_segment(aes(x = pi_grid, xend = pi_grid, y = 0, yend = posterior))
+```
+
+```{r}
+# Set the seed
+set.seed(84735)
+
+# Step 4: sample from the discretized posterior
+post_sample <- sample_n(grid_data, size = 10000, 
+                        weight = posterior, replace = TRUE)
+```
+
+```{r}
+ggplot(post_sample, aes(x = pi_grid)) + 
+  geom_histogram(aes(y = ..density..), color = "white", binwidth = 0.05) + 
+  stat_function(fun = dbeta, args = list(11, 3)) + 
+  lims(x = c(0, 1))
 ```
 

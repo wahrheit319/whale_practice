@@ -44,3 +44,5 @@ plot_beta_binomial(alpha = 3, beta = 10, y = 10, n = 13)
 summarize_beta_binomial(alpha = 20, beta = 2, y = 10, n = 200)
 plot_beta_binomial(alpha = 20, beta = 2, y = 10, n = 200)
 ```
+
+
