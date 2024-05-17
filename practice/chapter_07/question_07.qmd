@@ -1,0 +1,49 @@
+```{r}
+library(tidyverse)
+library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
+```
+
+```{r}
+# a
+lambda <- 2
+lambda_prime <- 2.1
+f_lambda_L_y <- function(lambda) lambda^(-2)
+
+
+min(1, (f_lambda_L_y(lambda_prime) * dnorm(lambda, mean = lambda_prime, sd = 1)) / 
+      (f_lambda_L_y(lambda) * dnorm(lambda_prime, mean = lambda, sd = 1)))
+```
+
+```{r}
+# b
+lambda <- 2
+lambda_prime <- 2.1
+f_lambda_L_y <- function(lambda) exp(lambda)
+
+min(1, (f_lambda_L_y(lambda_prime) * dnorm(lambda, mean = lambda_prime, sd = 0.2)) / 
+                  (f_lambda_L_y(lambda) * dnorm(lambda_prime, mean = lambda, sd = 0.2)))
+```
+
+```{r}
+# c
+lambda <- 2
+lambda_prime <- 2.1
+f_lambda_L_y <- function(lambda) exp(-10 * lambda)
+
+min(1, (f_lambda_L_y(lambda_prime) * dunif(lambda, min = lambda_prime - 0.5, max = lambda_prime + 0.5)) / 
+                  (f_lambda_L_y(lambda) * dunif(lambda_prime, min = lambda - 0.5, max = lambda + 0.5)))
+```
+
+```{r}
+# d
+lambda <- 2
+lambda_prime <- 2.1
+f_lambda_L_y <- function(lambda) exp(-lambda)
+
+min(1, (f_lambda_L_y(lambda_prime) * dexp(lambda, rate = 1 / lambda_prime)) / 
+                  (f_lambda_L_y(lambda) * dexp(lambda_prime, rate = 1 / lambda)))
+```
+
