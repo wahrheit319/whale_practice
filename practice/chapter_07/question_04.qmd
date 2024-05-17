@@ -1,0 +1,33 @@
+```{r}
+library(tidyverse)
+library(janitor)
+library(rstan)
+library(bayesplot)
+library(bayesrules)
+```
+
+```{r}
+# a
+set.seed(84735)
+mh_simulation_small_w <- mh_tour(N = 5000, w = 0.01)
+ggplot(mh_simulation_small_w, aes(x = iteration, y = mu)) + 
+  geom_line() + 
+  lims(y = c(1.6, 6.4))
+```
+
+```{r}
+# c
+set.seed(7)
+mh_simulation_large_w <- mh_tour(N = 5000, w = 100)
+ggplot(mh_simulation_large_w, aes(x = iteration, y = mu)) + 
+  geom_line() + 
+  lims(y = c(1.6, 6.4))
+```
+
+```{r}
+# e
+set.seed(84735)
+mh_simulation_optimal_w <- mh_tour(N = 5000, w = 1)
+ggplot(mh_simulation_optimal_w, aes(x = iteration, y = mu)) + 
+  geom_line()
+```

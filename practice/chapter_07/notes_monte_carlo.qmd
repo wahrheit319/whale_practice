@@ -42,6 +42,7 @@ next_stop
 ```
 
 ```{r}
+# one_mh_iteration is doing what above is doing
 one_mh_iteration <- function(w, current){
  # STEP 1: Propose the next chain location
  proposal <- runif(1, min = current - w, max = current + w)
