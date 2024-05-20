@@ -90,7 +90,7 @@ ggplot(mh_simulation_a, aes(x = mu)) +
 ```
 
 ```{r}
-# b
+# d
 mh_simulation_a <- mh_tour_normal(N = 1000, s = 10)
 ```
 
