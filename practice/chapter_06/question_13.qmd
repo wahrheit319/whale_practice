@@ -33,11 +33,12 @@ bb_sim <- stan(model_code = bb_model,
 
 ```{r}
 # b
+# Trace plot
 mcmc_trace(bb_sim, pars = "pi", size = 0.1)
 ```
 ```{r}
 # d
-# Density plot of the Markov chain values
+# Density plot
 mcmc_dens(bb_sim, pars = "pi") + 
   yaxis_text(TRUE) + 
   ylab("density")

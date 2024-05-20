@@ -35,10 +35,10 @@ gp_sim <- stan(model_code = gp_model,
 
 ```{r}
 # b 
-# Trace plots of the 4 Markov chains
+# Trace plot
 mcmc_trace(gp_sim, pars = "lambda", size = 0.1)
 
-# Density plots of the 4 Markov chains
+# Density plot
 mcmc_dens(gp_sim, pars = "lambda") + 
   yaxis_text(TRUE) + 
   ylab("density")

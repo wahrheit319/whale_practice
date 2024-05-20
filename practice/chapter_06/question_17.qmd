@@ -35,10 +35,10 @@ nn_sim <- stan(model_code = normal_normal_model,
 
 ```{r}
 # b
-# Trace plots of the 4 Markov chains
+# Trace plot
 mcmc_trace(nn_sim, pars = "mu", size = 0.1)
 
-# Density plots of the 4 Markov chains
+# Density plot
 mcmc_dens(nn_sim, pars = "mu") + 
   yaxis_text(TRUE) + 
   ylab("density")

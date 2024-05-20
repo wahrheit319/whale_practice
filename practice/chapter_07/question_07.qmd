@@ -7,38 +7,22 @@ library(bayesrules)
 ```
 
 ```{r}
-# a
 lambda <- 2
 lambda_prime <- 2.1
 
+# a
 min(1, (lambda_prime^(-2) * dnorm(lambda, mean = lambda_prime, sd = 1)) / 
       (lambda^(-2) * dnorm(lambda_prime, mean = lambda, sd = 1)))
-```
 
-```{r}
 # b
-lambda <- 2
-lambda_prime <- 2.1
-
 min(1, (exp(lambda_prime) * dnorm(lambda, mean = lambda_prime, sd = 0.2)) / 
       (exp(lambda) * dnorm(lambda_prime, mean = lambda, sd = 0.2)))
-```
 
-```{r}
 # c
-lambda <- 2
-lambda_prime <- 2.1
-
 min(1, (exp(-10 * lambda_prime) * dunif(lambda, min = lambda_prime - 0.5, max = lambda_prime + 0.5)) / 
       (exp(-10 * lambda) * dunif(lambda_prime, min = lambda - 0.5, max = lambda + 0.5)))
-```
 
-```{r}
 # d
-lambda <- 2
-lambda_prime <- 2.1
-
 min(1, (exp(-lambda_prime) * dexp(lambda, rate = 1 / lambda_prime)) / 
       (exp(-lambda) * dexp(lambda_prime, rate = 1 / lambda)))
 ```
-
