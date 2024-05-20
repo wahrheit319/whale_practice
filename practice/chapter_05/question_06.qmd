@@ -10,7 +10,7 @@ plot_poisson_likelihood(y = c(7, 3, 8, 9, 10, 12), lambda_upper_bound = 20)
 
 ```{r}
 # b
-plot_gamma_poisson(shape = 400, rate = 80, sum_y = 49, n = 6)
+plot_gamma_poisson(shape = 400, rate = 80, sum_y = 49/6, n = 6)
 ```
 
 ```{r}
