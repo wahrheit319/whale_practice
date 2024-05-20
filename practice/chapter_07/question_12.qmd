@@ -101,3 +101,16 @@ ggplot(mh_simulation_a, aes(x = iteration, y = mu)) +
 ggplot(mh_simulation_a, aes(x = mu)) + 
   geom_histogram(aes(y = ..density..), color = "white", bins = 20) 
 ```
+
+```{r}
+# f
+mh_simulation_a <- mh_tour_normal(N = 1000, s = 1)
+```
+
+```{r}
+ggplot(mh_simulation_a, aes(x = iteration, y = mu)) + 
+  geom_line()
+
+ggplot(mh_simulation_a, aes(x = mu)) + 
+  geom_histogram(aes(y = ..density..), color = "white", bins = 20) 
+```
