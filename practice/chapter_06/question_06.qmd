@@ -5,6 +5,7 @@ library(janitor)
 library(rstan)
 library(bayesplot)
 library(bayesrules)
+library(ggformula)
 ```
 
 ```{r}
@@ -87,3 +88,15 @@ ggplot(post_sample, aes(x = lambda_grid)) +
   stat_function(fun = dgamma, args = list(21, 8)) + 
   lims(x = c(0, 8))
 ```
+
+
+```{r}
+gf_dist("gamma", shape = 20, rate = 5, color = "red") |> # prior
+  gf_dist("gamma", shape = 1 + 1, rate = 3, color = "green") |> # likelihood
+  gf_dist("gamma", shape = 20 + 1, rate = 5 + 3, color = "blue")  # posterior
+```
+
+```{r}
+plot_gamma_poisson(shape = 20, rate = 5, sum_y = 1, n = 3)
+```
+

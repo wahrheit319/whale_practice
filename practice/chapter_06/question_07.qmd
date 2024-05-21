@@ -5,6 +5,7 @@ library(janitor)
 library(rstan)
 library(bayesplot)
 library(bayesrules)
+library(ggformula)
 ```
 
 ```{r}
@@ -90,5 +91,17 @@ ggplot(post_sample, aes(x = mu_grid)) +
   stat_function(fun = dnorm, args = list(mean(post_sample$mu_grid), sd(post_sample$mu_grid))) + 
   lims(x = c(5, 15))
 
+```
+
+```{r}
+gf_dist("norm", mean = 10, sd = 1.2, color = "red") |> # prior
+  gf_dist("norm", mean = mean(c(7.1, 8.9, 8.4, 8.6)), sd = sqrt((1.3 ^ 2) / 4), color = "green") |> # likelihood
+  gf_dist("norm", mean = (((10 / (1.2^2)) + (4 * mean(c(7.1, 8.9, 8.4, 8.6)) / (1.3 ^ 2))) / 
+                            ((1 / (1.2^2)) + 4 / (1.3 ^ 2))), 
+                                            sd = sqrt(0.306), color = "blue") # posterior
+```
+
+```{r}
+plot_normal_normal(mean = 10, sd = 1.2, sigma = 1.3, y_bar = 8.25, n = 4)
 ```
 

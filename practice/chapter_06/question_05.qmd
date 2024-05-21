@@ -5,6 +5,7 @@ library(janitor)
 library(rstan)
 library(bayesplot)
 library(bayesrules)
+library(ggformula)
 ```
 
 ```{r}
@@ -96,4 +97,18 @@ ggplot(post_sample, aes(x = pi_grid)) +
   stat_function(fun = dbeta, args = list(5, 16)) + 
   lims(x = c(0, 1))
 ```
+
+```{r}
+gf_dist("beta", shape1 = 3, shape2 = 8, color = "red") |> # prior
+  gf_dist("beta", shape1 = 2 + 1, shape2 = 8 + 1, color = "green") |> # likelihood
+  gf_dist("beta", shape1 = 3 + 2, shape2 = 8 + 8, color = "blue") # posterior
+```
+
+```{r}
+plot_beta_binomial(alpha = 3, beta = 8, y = 2, n = 10)
+```
+
+
+
+
 
