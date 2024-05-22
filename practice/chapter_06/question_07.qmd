@@ -93,12 +93,22 @@ ggplot(post_sample, aes(x = mu_grid)) +
 
 ```
 
+
 ```{r}
-gf_dist("norm", mean = 10, sd = 1.2, color = "red") |> # prior
-  gf_dist("norm", mean = mean(c(7.1, 8.9, 8.4, 8.6)), sd = sqrt((1.3 ^ 2) / 4), color = "green") |> # likelihood
+gf_dist("norm", mean = 10, sd = 1.2, color = ~ "prior") |> # prior
+  gf_dist("norm", mean = mean(c(7.1, 8.9, 8.4, 8.6)), sd = 1.3 / sqrt(4), color = ~ "likelihood") |> # likelihood
   gf_dist("norm", mean = (((10 / (1.2^2)) + (4 * mean(c(7.1, 8.9, 8.4, 8.6)) / (1.3 ^ 2))) / 
                             ((1 / (1.2^2)) + 4 / (1.3 ^ 2))), 
-                                            sd = sqrt(0.306), color = "blue") # posterior
+                                            sd = sqrt(0.306), color = ~ "posterior") # posterior
+```
+
+
+```{r}
+gf_dist("norm", mean = 10, sd = 1.2, color = ~ "prior") |> # prior
+  gf_dist("norm", mean = mean(c(7.1, 8.9, 8.4, 8.6)), sd = 1.3 / sqrt(4), color = ~ "likelihood") |> # likelihood
+  gf_dist("norm", mean = (((10 / (1.2^2)) + (4 * mean(c(7.1, 8.9, 8.4, 8.6)) / (1.3 ^ 2))) / 
+                            ((1 / (1.2^2)) + 4 / (1.3 ^ 2))), 
+                                            sd = sqrt(0.306), color = ~ "posterior") # posterior
 ```
 
 ```{r}
