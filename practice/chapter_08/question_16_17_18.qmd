@@ -110,7 +110,7 @@ climate_chains_df |>
 
 ```{r}
 # a
-# Plot the 20,000 predictions
+# Plot
 ggplot(climate_chains_df, aes(x = y_predict)) + 
   stat_count()
 ```
