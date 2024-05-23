@@ -1,0 +1,41 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+19
+```{r}
+# c
+data("penguins_bayes")
+```
+
+```{r}
+# c
+adelie_data <- penguins_bayes |>
+  filter(species == "Adelie")
+
+nrow(adelie_data)
+mean(adelie_data$flipper_length_mm, na.rm = TRUE)
+```
+```{r}
+# d
+adelie_mu <- 200
+adelie_sigma <- 30
+adelie_mean <- mean(adelie_data$flipper_length_mm, na.rm = TRUE)
+adelie_sd <- sd(adelie_data$flipper_length_mm, na.rm = TRUE)
+
+posterior_mean <- (adelie_mu / adelie_sigma^2 + nrow(adelie_data) * adelie_mean / adelie_sd^2) /
+  (1 / adelie_sigma^2 + nrow(adelie_data) / adelie_sd^2)
+posterior_sd <- sqrt(1 / (1 / adelie_sigma^2 + nrow(adelie_data) / adelie_sd^2))
+
+qnorm(c(0.025, 0.975), posterior_mean, posterior_sd)
+```
+20
+```{r}
+pnorm(220, posterior_mean, posterior_sd) - pnorm(200, posterior_mean, posterior_sd)
+```

@@ -1,0 +1,25 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+```{r}
+# a 
+qgamma(c(0.005, 0.995), 1, 5)
+```
+
+```{r}
+# b
+qnorm(c(0.025, 0.975), 10, 2)
+```
+
+```{r}
+# c
+qnorm(c(0.10, 0.90), -3, 1)
+```
+

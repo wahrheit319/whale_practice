@@ -1,0 +1,25 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+```{r}
+# a
+qbeta(c(0.025, 0.975), 4, 5)
+```
+
+```{r}
+# b
+qbeta(c(0.20, 0.80), 4, 5)
+```
+
+```{r}
+# c
+qgamma(c(0.025, 0.975), 1, 8)
+```
+

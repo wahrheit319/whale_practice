@@ -1,0 +1,34 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+```{r}
+data(pulse_of_the_nation)
+```
+
+```{r}
+# 14 d
+mean(pulse_of_the_nation$climate_change == "Not Real At All")
+nrow(pulse_of_the_nation)
+```
+
+```{r}
+# 14 e
+qbeta(c(0.025, 0.975), 851, 152)
+```
+
+```{r}
+# 15 b
+1 - pbeta(0.1, 851, 152)
+```
+```{r}
+1 - pbeta(0.1, 1, 2)
+(1 - pbeta(0.1, 1, 2)) / (1 - (1 - pbeta(0.1, 1, 2)) )
+```
+

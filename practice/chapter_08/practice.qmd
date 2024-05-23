@@ -1,0 +1,19 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+```{r}
+# Load data
+data("moma_sample")
+```
+
+```{r}
+pbeta(0.20, 18, 92)
+```
+

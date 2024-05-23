@@ -1,0 +1,32 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+```{r}
+# a
+plot_gamma(shape = 1, rate = 5)
+qgamma(0.95, 1, 5)
+```
+
+```{r}
+# b
+qgamma(c(0.025, 0.975), 1, 5)
+```
+
+
+```{r}
+# d
+plot_normal(mean = -13, sd = 2)
+qnorm(0.95, -13, 2)
+```
+
+```{r}
+# e
+qnorm(c(0.025, 0.975), -13, 2)
+```

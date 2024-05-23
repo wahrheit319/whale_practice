@@ -6,7 +6,9 @@ library(rstan)
 library(bayesplot)
 library(broom.mixed)
 library(janitor)
+```
 
+```{r}
 # Load data
 data("moma_sample")
 ```
