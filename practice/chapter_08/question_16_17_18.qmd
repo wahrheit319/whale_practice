@@ -77,13 +77,14 @@ dim(climate_chains_df)
 
 ```{r}
 # Calculate posterior summaries of pi
-climate_chains_df %>% 
+climate_chains_df |> 
   summarize(post_mean = mean(pi), 
             post_median = median(pi),
             post_mode = sample_mode(pi),
             lower_95 = quantile(pi, 0.025),
             upper_95 = quantile(pi, 0.975))
 ```
+
 ```{r}
 # b
 # Tabulate pi values that are above 0.10
@@ -113,6 +114,7 @@ climate_chains_df |>
 ggplot(climate_chains_df, aes(x = y_predict)) + 
   stat_count()
 ```
+
 ```{r}
 # c
 climate_chains_df |>
@@ -125,5 +127,10 @@ climate_chains_df |>
 # c
 climate_chains_df |>
   summarize(prob_at_least_20_not = mean(y_predict <= 80))
+```
+
+```{r}
+# c
+mean(climate_chains_df$y_predict >= 20)
 ```
 

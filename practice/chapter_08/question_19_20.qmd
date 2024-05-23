@@ -39,3 +39,4 @@ qnorm(c(0.025, 0.975), posterior_mean, posterior_sd)
 ```{r}
 pnorm(220, posterior_mean, posterior_sd) - pnorm(200, posterior_mean, posterior_sd)
 ```
+

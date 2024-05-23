@@ -1,0 +1,138 @@
+```{r}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(janitor)
+```
+
+21
+```{r}
+data(loons)
+```
+
+```{r}
+# c
+# data points
+nrow(loons)
+# average loon count per 100 hours
+mean(loons$count_per_100, na.rm = TRUE)
+```
+```{r}
+sum(loons$count)
+```
+
+```{r}
+# d
+qgamma(c(0.025, 0.975), shape = 4 + sum(loons$count_per_100), rate = 2 + nrow(loons))
+```
+22
+```{r}
+# c
+pgamma(1, shape =  4 + sum(loons$count_per_100), rate = 2 + nrow(loons))
+```
+
+23
+```{r}
+# a
+# STEP 1: DEFINE the model
+loon_model <- "
+  data {
+    int<lower=0> N;
+    int<lower=0> y[N];
+  }
+  parameters {
+    real<lower=0> lambda;
+  }
+  model {
+    lambda ~ gamma(4, 2);
+    y ~ poisson(lambda);
+  }
+"
+
+# STEP 2: SIMULATE the posterior
+loon_sim <- stan(model_code = loon_model, data = list(N = nrow(loons),y = loons$count_per_100), 
+                 chains = 4, iter = 10000, seed = 84735)
+
+```
+
+```{r}
+# a
+# Parallel trace plots & density plots
+mcmc_trace(loon_sim, pars = "lambda", size = 0.5) + 
+  xlab("iteration")
+mcmc_dens_overlay(loon_sim, pars = "lambda")
+
+# Autocorrelation plot
+mcmc_acf(loon_sim, pars = "lambda")
+```
+
+```{r}
+# b
+# Markov chain diagnostics
+rhat(loon_sim, pars = "lambda")
+neff_ratio(loon_sim, pars = "lambda")
+```
+
+```{r}
+# c
+tidy(climate_sim, conf.int = TRUE, conf.level = 0.95)
+```
+```{r}
+loon_chains_df <- as.data.frame(loon_sim, pars = "lambda", include = TRUE)
+# Calculate posterior summaries of lambda
+loon_chains_df |> 
+  summarize(post_mean = mean(lambda), 
+            post_median = median(lambda),
+            post_mode = sample_mode(lambda),
+            lower_95 = quantile(lambda, 0.025),
+            upper_95 = quantile(lambda, 0.975))
+```
+
+```{r}
+# d
+# Tabulate lambda values that are below 1
+loon_chains_df |>
+  mutate(exceeds = lambda < 1) |>
+  tabyl(exceeds)
+```
+
+24
+```{r}
+# a
+# Set the seed
+set.seed(1)
+
+# Predict a value of Y' for each pi value in the chain
+loon_chains_df <- loon_chains_df %>% 
+  mutate(y_predict = rpois(length(lambda), lambda))
+
+# Check it out
+loon_chains_df %>% 
+  head(3)
+```
+
+```{r}
+# a
+# Plot the 20,000 predictions
+ggplot(loon_chains_df, aes(x = y_predict)) + 
+  stat_count()
+```
+
+```{r}
+# b
+loon_chains_df |> 
+  summarize(mean = mean(y_predict),
+            lower_80 = quantile(y_predict, 0.1),
+            upper_80 = quantile(y_predict, 0.9))
+```
+
+```{r}
+# c
+mean(loon_chains_df$y_predict == 0)
+```
+
+
+

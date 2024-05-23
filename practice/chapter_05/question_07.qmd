@@ -24,12 +24,12 @@ gf_histogram(~ total_goals, data = wwc_2019_matches)
 
 ```{r}
 # d
-summarize_gamma_poisson(shape = 1, rate = 0.25, sum_y = sum(wwc_2019_matches$total_goals), n = nrow(wwc_2019_matches))
+summarize_gamma_poisson(shape = 1, rate = 0.25, sum_y = mean(wwc_2019_matches$total_goals), n = nrow(wwc_2019_matches))
 ```
 
 ```{r}
 # e
-plot_gamma_poisson(shape = 1, rate = 0.25, sum_y = sum(wwc_2019_matches$total_goals), n = nrow(wwc_2019_matches))
+plot_gamma_poisson(shape = 1, rate = 0.25, sum_y = mean(wwc_2019_matches$total_goals), n = nrow(wwc_2019_matches))
 ```
 
 
