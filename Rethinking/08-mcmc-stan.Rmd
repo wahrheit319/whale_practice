@@ -1,0 +1,133 @@
+---
+title: "MCMC in Stan"
+author: "STAT 341, Spring 2023"
+date: "2023-03-20"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_download: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(tidybayes)
+library(rethinking)
+library(ggformula)
+library(rstan)
+library(bayesplot)
+knitr::opts_chunk$set(echo = TRUE)
+options(mc.cores = parallel::detectCores())
+theme_set(theme_minimal(base_size = 18))
+```
+
+## Data
+
+The data for our example model is presented in Chapters 8-9 of *Statistical Rethinking,* on gross domestic products and ruggedness of terrain in countries around the globe. 
+
+The code below loads and prepares the dataset:
+
+```{r}
+# rugged dataset is in the rethinking package
+data("rugged")
+rugged <- rugged |>
+  mutate(
+    # convert GDP data to natural log scale
+    log_gdp = log(rgdppc_2000),
+    # standardize log(GDP) by dividing by its mean value (see CH. 8 for rationale)
+    log_gdp_std = log_gdp / mean(log_gdp, na.rm = TRUE),
+    # standardize terrain ruggedness by dividing by its max value
+    # (not z-score b/c want to keep 0 ruggedness to mean totally flat)
+    rugged_std = rugged / max(rugged, na.rm = TRUE),
+    # create categorical variable for Africa or Not Africa
+    region = ifelse(cont_africa == 1, 'Africa', 'Not Africa')) |>
+  drop_na(country, log_gdp_std, rugged_std, region) |>
+  select(country, log_gdp_std, rugged_std, region)
+# prepare data for use in Stan
+stan_data <- compose_data(rugged)
+nrow(rugged)
+```
+
+A note about `rugged_std`: we didn't want to center this variable since a ruggedness value of 0 means totally flat land, and we want to preserve that meaning. However, if we *don't* center, then defining priors for the intercept for any model with a ruggedness predictor will be harder. So you will see that in the model we use `rugged_std - 0.215` as a predictor -- 0.215 is the mean value of `rugged_std` and the idea is that setting up the model this way kind of lets us have both: a meaning for `rugged_std = 0` *and* a prior for the intercept that can be interpreted as the "average overall response value."
+
+## Fitting with Stan
+
+You can save a Stan program in a dedicated flat text file, or a string in R (shown below). It has 3 parts:
+
+- data: how many observations are there, and what are the variables?
+- parameters: what parameters will the model produce posteriors for?
+- model: how is the likelihood defined, and what are the priors?
+
+```{r, stan-ruggedness}
+stan_program <- '
+data {
+  int<lower=1> n;     // number of observations
+  vector[n] log_gdp_std;    // response
+  vector[n] rugged_std;     // predictor
+  array[n] int region;            // categorical predictor, africa or not
+}
+parameters {
+  real<lower=0> sigma; // std of response, single continuous value
+  vector[2] a; // vector of two numeric values: intercepts for Africa and Not Africa
+  vector[2] b; // vector of two numeric values: slopes for Africa and Not Africa
+}
+model {
+  vector[n] mu; // vector of n values: expected log_gdp_std for each observation
+  for (i in 1:n) { // loop over the n cases in the dataset to estimate mu_i values
+    mu[i] = a[region[i]] + b[region[i]] * (rugged_std[i] - 0.215); // expected log_gdp_std is region-specific intercept + region-specific slope * (rugged_std = 0.215)
+  }
+  a ~ normal(1, 0.1); // prior for both intercepts
+  b ~ normal(0, 0.3); // prior for both slopes
+  sigma ~ exponential(1); // prior for sigma
+  log_gdp_std ~ normal(mu, sigma); // defining likelihood in terms of mus and sigma
+}
+'
+
+# fit the model defined above to the stan_data on ruggedness and GDP
+rugged_model <- stan(model_code = stan_program, data = stan_data)
+```
+
+We will learn more about how to "tell" Stan things in Stan programs as we go. But for now, note 2 very useful reference resources:
+
+- [Stan code for models fitted in *Statistical Rethinking*](https://vincentarelbundock.github.io/rethinking2/) by Vincent Arel-Bundock
+- Stan reference for [available continuous distributions](https://mc-stan.org/docs/functions-reference/continuous-distributions.html) (and the full [Stan functions reference](https://mc-stan.org/docs/functions-reference/index.html))
+
+## Viewing Results
+
+```{r, stan-summary}
+rugged_model
+```
+
+```{r, stan-trace}
+mcmc_trace(rugged_model)
+```
+
+## Posterior Sample
+
+To get the post-warmup samples from the posterior, in the form of a data frame, from a fitted Stan model in R:
+
+```{r, post-samp-stan}
+psamp <- as.data.frame(rugged_model)
+glimpse(psamp)
+```
+
+- What is `lp__`? It's a measure of the log-likelihood of the data given the sampled parameter values. ("Up to a constant," meaning the values can be compared to one another, but are only proportional to the likelihood.)
+
+We might want to rename the variables in the posterior sample for easier use in R (and easier remembering-what-they-are):
+
+```{r}
+psamp <- psamp |>
+  rename(intercept_Africa = `a[1]`,
+         intercept_NotAfrica = `a[2]`,
+         slope_Africa = `b[1]`,
+         slope_NotAfrica = `b[2]`,
+         relative_log_lik = lp__)
+glimpse(psamp)
+```
+
+## Your Turn
+
+Convert a model you have previously fitted (or one from any previous class example) to be fitted using Stan.
+
+- Can you get it running?
+- Is the posterior similar to what you got with grid search or `quap()`?

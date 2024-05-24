@@ -1,0 +1,157 @@
+---
+title: "Beyond One Proportion"
+author: "STAT 341, Spring 2023"
+date: "2023-02-01"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_download: yes
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggformula)
+library(rethinking)
+knitr::opts_chunk$set(echo = TRUE)
+theme_set(theme_minimal(base_size = 16))
+```
+
+## What Came Before
+So far, we have been fitting very simple models: we are only trying to estimate **one** parameter, and it has always been a proportion.
+
+But our recent exploration of causal diagrams has reminded us that we are most often interested in *relationships* between two or more variables (and our one-parameter simple models were oversimplifying things quite a bit). For example, the probability of a patent being for a product is not really the same for every patent in the world. It surely depends on lots of things (the company filing the patent, tariffs, the state of the economy, as well as other shifts over time).
+
+Now that we have a more solid grasp on what the prior, likelihood and posterior are and are a bit familiar with grid search and quadratic approximation as two ways of fitting Bayesian models, we are ready to branch out into slightly more complicated models!
+
+## Probability Distributions - Review (?)
+
+So far, we've seen the Uniform, Beta, and Binomial distributions. There are [A LOT MORE](http://www.math.wm.edu/~leemis/chart/UDR/UDR.html) options out there! Each one is a function that matches possible *values* of a variable (usually depicted on the x-axis) with a measure of how often they occur (usually on the y-axis).
+
+We can classify them into the categories of **discrete** and **continuous** distributions.
+
+- Discrete distributions model variable that can take on a discrete set of values (for example, the number of successes in *n* trials, or the number of birds spotted in the forest). For these, the function values are a set of probabilities that sum to 1.
+- Continuous distributions model variables that can take on any numeric value within a specified range (for example, proportion between 0 and 1, or height of people in cm). For these, the function values are in "density" or "likelihood" units -- they are scaled such that the total area under the functions' curve is 1.
+
+The **support** of a distribution describes the range of values a variable can have (it might be 0-1, 0-$\infty$, $-\infty$ - $\infty$, or (for the Uniform!) values between some specified minimum and maximum).
+
+Knowing all this, you can choose a distribution that is a good fit for a variable by matching its type and support.
+
+Here are some flow charts that try to illustrate the process:
+
+
+```{r, echo = FALSE, out.width = '90%', fig.cap="Figure 6A.15 from Damodaran's 'Probabilistic approaches to risk', republished in Fong Chun Chan's Blog"}
+knitr::include_graphics('https://tinyheero.github.io/assets/prob-distr/overview-prob-distr.png')
+```
+
+
+```{r, echo = FALSE, out.width = '90%', fig.cap="From Ghanegolmohammadi et al. 2022, BMC Biology"}
+knitr::include_graphics('https://media.springernature.com/full/springer-static/image/art%3A10.1186%2Fs12915-022-01283-6/MediaObjects/12915_2022_1283_Fig3_HTML.png')
+```
+
+## Distributions in R
+
+In R, each distribution has 2 functions we may use often. (Fill in the `___` with the (often shortened) name of the distribution.)  
+
+- `d____()` returns the value(s) of the function corresponding to given variable value(s). The result are in *Likelihood* units: either probability for discrete distributions, or density for continuous ones. The first input is `x`, the variable value(s). Examples: `dunif()`, `dbinom()`, `dbeta()`...
+- `r____()` returns random sample(s) drawn from the specified distribution. The first input is `n`, the number of samples to draw.
+
+To get information about parameter/input names for a specific function, ask R for help...for example,
+
+```{r}
+?dunif
+```
+
+## Yikes
+
+Don't get overwhelmed. We know there are lots of distributions out there. But we will ease into it.
+
+## Normal (Gaussian)
+The only new one we'll really use for the moment is the **Normal or Gaussian distribution**, which you should have seen before.  It has parameters $\mu$, the `mean` or center; and $\sigma$, the `sd` (standard deviation) or spread. 
+
+**Why the Normal??** The very short answer is that is comes up, and proves useful, often...both mathematically and with real-world data. For a much longer answer check out SR Chapter 4.1.
+
+#### Question: Drawing on previous knowledge (and maybe the charts above), is the Normal distribution discrete or continuous? What is its support?
+#### Question: If we somehow used a normal distribution in a model, what would be really different about our posterior? (*Hint: at least twice the fun...*)
+#### Question: Try to explain in words what the R code, and output, below mean.
+
+```{r}
+dnorm(0, mean = 0, sd = 0.1)
+dnorm(0, mean = 2, sd = 10)
+rnorm(7, mean = 44, sd = 10)
+```
+
+*Hint: remember you can use `gf_dist('dist_name', parameter_name = value, parameter2_name = value)` to draw a probability distribution if it helps you visualize!*
+
+```{r}
+gf_dist('norm', mean = 0, sd = 0.1)
+```
+
+
+## Language for Describing Models
+
+*Text reference: SR 4.2*
+
+As our models get more complex, we need notation to help us describe them in terms of **parameters** we want (or need) to estimate, and the probability distributions we're using to model them.
+
+We will often use the symbol $\sim$ to mean "follows the distribution" or "is distributed."
+
+Rearrange the items below and fill in the blanks to get a description of our blood model (you should end up with 2 lines, each of the form *parameter $\sim$ distribution*)
+
+- Parameters and data variables: b (count of "blood"), n (number of trials), p (probability of blood), 0, 1
+- Distributions: Binomial(..., ...); Uniform(...,...)
+
+#### Question: A complete model description has to tell us all about the prior(s) and the likelihood. In your description above, which are which?
+
+## Practice Describing a Model
+
+Your book considers a model for $i = 1, 2, 3, ...n$ observations of peoples' heights, so $\text{height}_i$ is the height given in the $i$th row of the dataset.
+
+*Eek, suddenly we're using a fair bit of mathematical notation in R. If you love it, LOVELY. If you need help, [a brief reference guide is available](https://connect.cs.calvin.edu/STAT341/symbols/).  If you want to just use paper, that's ok too. Go back and forth from the Rmd to the the compiled version to get a sense for how the (LaTeX-y) notation works, too.*
+
+$$\text{height}_i \sim \text{Normal}(\mu, \sigma)$$
+
+$$\mu \sim \text{Normal}(\text{mean} = 178, \text{sd} = 20)$$
+
+$$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 50)$$
+
+#### Question: Can you explain in words what this model description is saying? 
+#### Question: What part tells us about the prior? What part about the likelihood? 
+#### Task: use `gf_dist()` to draw the two priors. *Note: there are two now, in our ONE model, because we are estimating more than one parameter!*
+#### Question: Based on the priors given, what do you think the units of measure of the height data are?
+#### Question: Why were Normal and Uniform distributions chosen; would you choose the same? (*Advanced add-on: what is tricky about the support of $\sigma$ compared to $\mu$? Do you have any related worry about the support of the height data?*)
+#### Question: How might you adjust the prior to better reflect your own knowledge?
+#### Task: use `rnorm()` and `runif()` to *simulate* some fake data based on the **priors** stated above -- or your new-and-improved ones! Use `gf_histogram()` to make a histogram of the resulting fake-height-data to check it out. (Remember, this is called a *prior* predictive distribution...why is it useful?)
+
+## Another Example
+
+Consider a data set based on Tintle et al. 2019, ["Evaluating the efficacy of point-of-use water filtration units in Fiji"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6686492/). In this study, water filters were distributed to households in Fiji to provide better access to safer drinking water, and data was collected on money spent on water, and health outcomes, before and after filter distribution.
+
+```{r}
+fiji_water <- read_csv('https://sldr.netlify.app/data/fiji-filters.csv',
+                       show_col_types = FALSE)
+glimpse(fiji_water)
+```
+
+Let's consider modeling the `water_expenses_pp` variable, which is water expenses per person in Fijian dollars.
+
+#### Task: Without further peeking at the data first -- but you can use a web search if you like -- set up a model analogous to the height model above, but for the `water_expenses_pp` variable. Write it down in our new notation.
+
+## More time? 
+
+- Consider the same questions I asked you about the height example, but now for the water-cost example.
+- Right now we still have *only one* data variable, so none of the causal diagram stuff comes into play yet...can you imagine how it *will* soon come into play?
+
+## What's next?
+Clearly, we need to learn to *fit* these new models, which is what we will try next.
+
+If you have extra time, make an attempt to fit the water-cost model using a grid search. Can you identify why it's tricky?
+
+- You will need to know how to compute the **likelihood of one water-cost observation given the model**
+- You'll need to determine how to *combine* the likelihoods of all the individual datapoints into a *joint* likelihood of the whole dataset
+- You'll need R code that lets you keep track of a big set of candidate values for *more than one* parameter
+- (sorry) You'll need to work on the *log*-likelihood scale to avoid numerical problems with the calculations
+
+Help is coming next time!

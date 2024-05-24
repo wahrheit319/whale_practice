@@ -1,0 +1,544 @@
+---
+title: "Class Stan Examples"
+author: "STAT 341"
+date: "2023-03-29"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_download: true
+---
+
+# Setup
+
+In this document, I'm displaying the setup chunk to clarify which R packages are being used.
+
+```{r setup, echo = TRUE, results = 'hide', message = FALSE}
+library(tidyverse)
+library(ggformula)
+library(rethinking)
+library(rstan)
+library(CalvinBayes)
+library(tidybayes)
+library(bayesplot)
+knitr::opts_chunk$set(echo = TRUE,
+                      error = TRUE,
+                      fig.width = 7, 
+                      fig.height = 4)
+
+theme_set(theme_minimal(base_size = 16))
+```
+
+# Simple Normal Fit
+
+Fit a normal distribution to the cell-phone-use-at-work data.
+
+## Read in Phone Data
+
+```{r, prep-phone-data}
+phone_data  <- read_csv('https://sldr.netlify.app/data/phone_boredom.csv',
+                        show_col_types = FALSE)
+
+phone_data <- phone_data |>
+  select(boredomS, fatigueS, fomo_scaled, total_b20S) |> 
+  rename(phone_useS = total_b20S) |>
+  drop_na() 
+```
+
+## Original `quap()` model
+(for comparison)
+
+```{r, phone-quap-fit}
+quap_mod <- quap(
+  flist = alist(
+    boredomS ~ dnorm(mu, sigma),
+    mu <- dnorm(0, 0.25),
+    sigma ~ dnorm(1, 1)
+  ),
+  data = phone_data)
+
+# quick peek at quap results for later comparison
+precis(quap_mod)
+```
+
+```{r, prep-data-and-fit-phones}
+# prep data for use with stan
+stan_phone_data <- compose_data(phone_data)
+
+stan_phone_norm <- '
+data {
+  int<lower=1> n;         // number of observations
+  vector[n] phone_useS;    // response
+
+}
+parameters {
+  real<lower=0> sigma;     // std of response, single continuous value
+  real mu;
+}
+model {
+  mu ~ normal(0, 0.25);             // prior for mu
+  // was: normal(120, 120) why did I change it?
+  sigma ~ normal(1, 1);             // prior for sigma
+  phone_useS ~ normal(mu, sigma);      // defining likelihood in terms of mus and sigma
+}
+'
+
+boredom_model <- stan(model_code = stan_phone_norm, 
+                      data = stan_phone_data,
+                      # suppress some screen printout
+                      refresh = 0)
+```
+
+```{r, phone-model}
+boredom_model
+```
+
+## Comparing with `quap()`
+
+- We observe: Posterior means seem to match up ok so it seems like we successfully fitted the same model in quap() and stan()
+
+## Diagnostics
+
+### `n_eff`
+
+- We observe: `n_eff` is much smaller than the number of post warmup iterations. 
+- Action needed? We might do better if we increase the number of warmup iterations (or maybe add chains)
+
+```{r}
+boredom_model2 <- stan(model_code = stan_phone_norm, 
+                      data = stan_phone_data,
+                      iter = 2000,
+                      warmup = 1000,
+                      refresh = 0)
+```
+
+```{r}
+boredom_model2
+```
+
+A bit better but not much?
+
+### $\hat{R}$
+
+- We observe: all values are 1
+- Action needed? Nope, all good
+
+## Warning: Divergent Transitions?
+
+- We observe: Nope, no warnings.
+- Action needed? No.
+
+### Trace Plot
+
+```{r}
+bayesplot::mcmc_trace(boredom_model)
+```
+
+- We observe: This plot is not super useful if there's only one chain.
+- Action needed? Add more chains and refit and try again.
+
+### Rank Trace Plot
+
+```{r}
+bayesplot::mcmc_rank_overlay(boredom_model)
+```
+
+- We observe: Again, not really interpretable unless more than 1 chain
+- Action needed?
+
+
+# Linear Regression with Quantitative Predictor
+
+Fit a simple linear model to the `foxes` data.
+
+## Prepare Data
+
+```{r, prep-fox-data}
+# data is from rethinking package
+data('foxes')
+foxes <- foxes |>
+  drop_na(avgfood)
+
+# compose data for use in stan
+stan_fox_data <- compose_data(foxes)
+```
+
+## Stan fit
+
+- *Note: `quap()` fit not shown this time - you could fit it as an exercise. Author says that the posteriors are similar for `quap` and Stan.*
+
+```{r, prep-data-and-fit-foxes}
+stan_fox_regression <- '
+data {
+  int<lower=1> n;     // number of observations
+  vector[n] weight;    // response
+  vector[n] avgfood;     // predictor
+}
+parameters {
+  real<lower=0> sigma; // std of response, single continuous value
+  real a; // intercept
+  real b; // slope
+}
+model {
+  vector[n] mu; // vector of n values: expected weight for each observation
+  for (i in 1:n) { // loop over the n cases in the dataset to estimate mu_i values
+    mu[i] = a + b * avgfood[i]; 
+  }
+  a ~ normal(3.5, 1); // prior for intercept
+  b ~ normal(5, 1); // prior forslope
+  // this is probably not the same prior as used for quap()!
+  sigma ~ exponential(1); // prior for sigma
+  weight ~ normal(mu, sigma); // defining likelihood in terms of mus and sigma
+}
+'
+
+# fit the model defined above to the stan_data
+foxes_model <- stan(model_code = stan_fox_regression, 
+                    data = stan_fox_data,
+                    chains = 4, 
+                    # suppress some screen printout
+                    refresh = 0)
+```
+
+```{r, fox-model}
+foxes_model
+```
+
+
+## Diagnostics
+
+### `n_eff`
+
+- We observe: It's quite a bit smaller than the number of samples
+- Action needed? Try increasing `warmup`
+
+### $\hat{R}$
+
+- We observe: All 1s
+- Action needed? No action, all ok
+
+## Warning: Divergent Transitions?
+
+- We observe: Nope
+- Action needed? Nope
+
+### Trace Plot
+
+```{r}
+bayesplot::mcmc_trace(foxes_model)
+```
+
+- We observe: Looks like pretty good mixing
+- Action needed? Probably no
+
+### Rank Trace Plot
+
+```{r}
+bayesplot::mcmc_rank_overlay(foxes_model)
+```
+
+- We observe: Not too bad
+- Action needed? Maybe no, but could add or lengthen chains
+
+
+# Regression with Multiple Quantitative Predictors
+
+This is an analysis of the data on bug diversity in houses and how it relates to residents' socioeconomic status.
+
+## Read in Data
+
+```{r}
+bugs <- read_csv('https://sldr.netlify.app/data/house_bugs.csv',
+                 show_col_types = FALSE) |>
+  na.omit()
+
+bugs <- bugs |>
+  mutate(arthropod_div = arthropod.div) |>
+  mutate(income_avg_z = income.avg.z) |>
+  mutate(sqft_z = sqft.z) |>
+  mutate(total_value_z = total.value.z)
+
+stan_bug_data <- compose_data(bugs)
+```
+
+## Original `quap()` model
+(for comparison)
+
+```{r}
+model_descrip <- alist(
+  arthropod.div ~ dnorm(mu, sigma),
+  mu ~ beta0 + beta1 * income.avg.z + beta2 * total.value.z + beta3 * sqft.z, 
+  beta0 ~ dnorm(mean = 20, sd = 10),
+  beta1 ~ dnorm(mean = 25, sd = 5),
+  beta2 ~ dnorm(mean = 25, sd = 5),
+  beta3 ~ dnorm(mean = 10, sd = 10),
+  sigma ~ dnorm(mean = 20, sd = 5)
+)
+
+quap_bug_model <- quap(flist = model_descrip,
+                       data = bugs)
+quap_bug_post_sample <- extract.samples(quap_bug_model, n = 1000)
+precis(quap_bug_model)
+```
+
+## Fit Model in Stan
+
+```{r}
+stan_bug_program <- '
+data {
+// number of observations
+int<lower=1> n;
+// response
+vector[n] arthropod_div;
+// predictor
+vector[n] income_avg_z;
+// predictor
+vector[n] sqft_z;
+// predictor
+vector[n] total_value_z;
+}
+parameters {
+// std of response, single continuous value
+real<lower=0> sigma;
+real a;
+real b;
+real c;
+real d;
+}
+model {
+// vector of n values: expected arthropod.div for each observation
+vector[n] mu;
+// loop over the n cases in the dataset to estimate mu_i values
+for (i in 1:n) {
+mu[i] = a + (b*income_avg_z[i]) + (c*total_value_z[i]) + (d*sqft_z[i]);
+}
+// prior for intercept
+a ~ normal(20, 10);
+// priors for slopes
+b ~ normal(25, 5);
+c ~ normal(25, 5);
+d ~ normal(10, 10);
+// prior for sigma
+sigma ~ normal(20, 5);
+// defining likelihood in terms of mus and sigma
+arthropod_div ~ normal(mu, sigma);
+}
+'
+```
+
+```{r}
+# we are using an unusually small number of warmup iterations to see what goes wrong
+bug_stan_model <- stan(model_code = stan_bug_program, 
+                       data = stan_bug_data,
+                       chains = 4,
+                       warmup = 25,
+                       refresh = 0)
+```
+
+```{r}
+bug_stan_model
+```
+
+
+## Comparing with `quap()`
+
+If we wanted a more in-depth comparison, we could plot the posterior density for parameter(s), overlaying results from `quap()` and `stan()`. Usually we need not do this as we would not fit the same model using 2 different algorithms - we are doing it now as a way of checking that our first attempt to fit a model in `stan()` was not buggy and fitted the model we intended!
+
+Example for parameter `a`:
+
+```{r}
+# get posterior sample from stan fitted model
+psamp <- as.data.frame(bug_stan_model)
+gf_dens(~a, data = psamp) |> 
+  gf_dens(~beta0, data = quap_bug_post_sample,
+          color = 'red',
+          inherit = FALSE)
+```
+
+- We observe: The two posteriors are pretty similar. If we took more samples from the `stan()` posterior, the posterior shape might smooth out more. And again, we are only comparing these two posteriors in order to verify that we fit the model we thought we fit (ordinarily we would just  fit the model in Stan and interpret the results, with no need to compare with `quap()`... and if we really fitted the same model with both and got different results, the Stan results would probably be more reliable). 
+
+## Diagnostics
+
+### `n_eff`
+
+- We observe: It's a little lower than we'd like.
+- Action needed? Increasing the number of warmup iterations (which we artificially used a stupidly small number of) might help. We might also reconsider the parameterization and priors of the model. But the total `n_eff` is big, so it's probably fine.
+
+```{r}
+bug_stan_model2 <- stan(model_code = stan_bug_program, 
+                       data = stan_bug_data,
+                       chains = 6,
+                       iter = 4000,
+                       warmup = 3000,
+                       refresh = 0)
+bug_stan_model2
+```
+
+### $\hat{R}$
+
+- We observe: All 1s = good
+- Action needed? None
+
+## Warning: Divergent Transitions?
+
+- We observe: No such warnings!
+- Action needed? None
+
+### Trace Plot
+
+```{r}
+bayesplot::mcmc_trace(bug_stan_model)
+```
+
+- We observe: Looks like pretty good mixing
+- Action needed? Probably not
+
+### Rank Trace Plot
+
+```{r}
+bayesplot::mcmc_rank_overlay(bug_stan_model)
+```
+
+- We observe: Rank histogram for each chain looks relatively uniform so that's ok
+- Action needed? Probably none
+
+# Regression with Interacting Categorical Predictors
+
+We're fitting a model to the `Wines2012` data from the `rethinking` package, with 2 *interacting* categorical predictors.
+
+(If they *were not* interacting, we'd likely formulate the model with two separate categorical predictors instead of one "combo" categorical predictor comprising all combinations of the two categories. Code would look a lot like the code shown here, except with two categorical predictors instead of one!)
+
+
+## Read in Data
+
+```{r, prep-wine-data}
+data("Wines2012")
+Wines2012 <- Wines2012 |>
+  mutate(# make a standardized version of the score variable
+    score_std = as.numeric(scale(score)),
+    # categorical versions of some variables originally coded 0/1
+    wine.origin = ifelse(wine.amer == 1, 'USA', 'Other'),
+    judge.nationality = ifelse(judge.amer == 1, 'USA', 'France'),
+    # numeric index versions of the same categorical variables
+    origin.ix = as.numeric(factor(wine.origin)),
+    judge.ix = as.numeric(factor(judge.nationality))
+  )
+
+# we'd use this if we wanted the categorical predictors to interact.
+# for model without interaction, we won't need it.
+Wines2012 <- Wines2012 |>
+  mutate(Origin_Judge = interaction(wine.origin, judge.nationality),
+         Origin_Judge_ix = as.numeric(Origin_Judge)) |>
+  drop_na(Origin_Judge, score_std)
+
+stan_wine_data <- compose_data(Wines2012)
+
+levels(Wines2012$Origin_Judge)
+```
+
+## Original `quap()` model
+(for comparison)
+
+```{r, wine-quap-fit}
+wine_model_list <- alist(
+  score_std ~ dnorm(mu, sigma),
+  mu <- b1[Origin_Judge_ix],
+  b1[Origin_Judge_ix] ~ dnorm(0, 0.25),
+  sigma ~ dlnorm(0,1)
+)
+
+wine_int_model <- quap(
+  flist = wine_model_list,
+  data = Wines2012
+)
+
+precis(wine_int_model, depth = 2)
+```
+
+```{r, winemodel}
+wine_stan_program <- 'data {
+// number of observations
+int<lower=1> n;
+// response
+vector[n] score_std;
+// categorical predictor,"Other.France" or "USA.France" or "Other.USA" or   "USA.USA" 
+int[n] Origin_Judge;
+
+}
+parameters {
+// std of response, single continuous value
+real<lower=0> sigma;
+// vector of 4 numeric values: expected scores for each combo of wine origin & judge origin
+vector[4] a;
+}
+
+model {
+// vector of n values: expected score_std for each observation
+vector[n] mu;
+// loop over the n cases in the dataset to estimate mu_i values
+for (i in 1:n) {
+// expected score_std is judge- and wine-origin-specific value
+mu[i] = a[Origin_Judge[i]];
+}
+// THESE PRIORS ARE INTENTIONALLY AWFULLY UNINFORMATIVE
+// (WHAT WILL GO WRONG?) Turns out not much -- it is robust
+// prior for all four intercepts
+a ~ normal(50, 250);
+// prior for sigma
+sigma ~ lognormal(1,1000);
+// defining likelihood in terms of mus and sigma
+score_std ~ normal(mu, sigma);
+}
+'
+
+wine_stan_model <- stan(model_code = wine_stan_program, 
+                     data = stan_wine_data,
+                     chains = 4,
+                     # I'm intentionally using too little warmup to try to cause trouble with the diagnostics
+                     warmup = 100)
+```
+
+- Note: if you want to use a lognormal distribution for a prior, you need to know what Stan's function for that distribution is. Remember, there is a reference manual for that: <https://mc-stan.org/docs/functions-reference/continuous-distributions.html>. We find that Stan uses `lognormal()`.
+
+```{r}
+wine_stan_model
+```
+
+## Comparing with `quap()`
+
+- We observe: There's a reasonable match (It would probably be better if I had not changed the priors to really terrible ones to see if it would affect convergence!)
+
+## Diagnostics
+
+### `n_eff`
+
+- We observe: Looks great. 
+- Action needed? We could perhaps even save time by making the number of iterations and the number of warmup iterations *smaller*.
+
+### $\hat{R}
+
+- We observe: all 1
+- Action needed? None
+
+## Warning: Divergent Transitions?
+
+- We observe: No such warnings!
+- Action needed? No
+
+### Trace Plot
+
+```{r}
+bayesplot::mcmc_trace(wine_stan_model)
+```
+
+- We observe: Looks like chains are mixing pretty well
+- Action needed? No
+
+### Rank Trace Plot
+
+```{r}
+bayesplot::mcmc_rank_overlay(wine_stan_model)
+```
+
+- We observe: No clear issues - each chain's histogram looks pretty uniform
+- Action needed? No
