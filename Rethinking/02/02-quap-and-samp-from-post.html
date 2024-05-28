@@ -432,7 +432,7 @@ blood_quap &lt;- quap(
   alist(
     # W stands for &quot;Water&quot; you may want to rename to match your data!
     # (you will need to fill in the blanks)
-    obs ~ dbinom(n, p),  # binomial likelihood 
+    obs ~ dbinom(size = n, prob = p),  # binomial likelihood 
     p ~ dunif(0, 1)        # **uniform** prior for the probability of success, &quot;p&quot;
   ), 
   data = list(obs = 3, n = 9)
@@ -440,8 +440,8 @@ blood_quap &lt;- quap(
 
 # display summary of quadratic approximation 
 precis(blood_quap)</code></pre>
-<pre><code>##        mean        sd       5.5%     94.5%
-## p 0.3333336 0.1571338 0.08220336 0.5844638</code></pre>
+<pre><code>##        mean       sd       5.5%     94.5%
+## p 0.3333513 0.157138 0.08221437 0.5844881</code></pre>
 <p>How well does this quadratic approximation work? Does it’s accuracy
 depend on sample size? To find out, here’s the function I used to
 generate our blood dataset and how you can use it to get a larger sample

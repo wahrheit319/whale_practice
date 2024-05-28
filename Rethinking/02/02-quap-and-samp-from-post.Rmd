@@ -59,7 +59,7 @@ blood_quap <- quap(
   alist(
     # W stands for "Water" you may want to rename to match your data!
     # (you will need to fill in the blanks)
-    obs ~ dbinom(n, p),  # binomial likelihood 
+    obs ~ dbinom(size = n, prob = p),  # binomial likelihood 
     p ~ dunif(0, 1)        # **uniform** prior for the probability of success, "p"
   ), 
   data = list(obs = 3, n = 9)

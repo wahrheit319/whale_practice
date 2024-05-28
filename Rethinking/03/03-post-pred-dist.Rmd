@@ -19,17 +19,28 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Definitions
 
-- A model is **generative** if you can simulate hypothetical data samples from it. Many frequentist models, and basically all Bayesian ones, are generative.
-- Obtaining a **posterior predictive distribution** means simulating data for all conjectured values of your parameter(s), then computing an average of all the simulated data distributions weighted by the posterior probability/density. In other words, *sample* parameter values from the posterior and simulate some data for each one, aggregating all the simulated data together at the end.
+-   A model is **generative** if you can simulate hypothetical data samples from it. Many frequentist models, and basically all Bayesian ones, are generative.
+-   Obtaining a **posterior predictive distribution** means simulating data for all conjectured values of your parameter(s), then computing an average of all the simulated data distributions weighted by the posterior probability/density. In other words, *sample* parameter values from the posterior and simulate some data for each one, aggregating all the simulated data together at the end.
 
 #### Question: Discuss why and how the two definitions of "posterior predictive distribution" are equivalent.
- 
-#### Question: The figure below is Figure 3.6 from *Statistical Rethinking,* illustrating how to obtain a posterior predictive distribution. How would you label the y axis of each plot? What process is happening to get from the Posterior Probability to the Sampling Distributions? What process is happening to get from the Sampling Distributions to the Posterior Predictive Distribution? 
+
+> They are both sampling parameter values from the posterior distribution, simulate new data for each sampled parameter, and combine them together.
+
+#### Question: The figure below is Figure 3.6 from *Statistical Rethinking,* illustrating how to obtain a posterior predictive distribution. How would you label the y axis of each plot? What process is happening to get from the Posterior Probability to the Sampling Distributions? What process is happening to get from the Sampling Distributions to the Posterior Predictive Distribution?
 
 ```{r, echo = FALSE}
 knitr::include_graphics('https://stacyderuiter.github.io/stat341-s23/images/SRfig3p6.png')
 ```
 
+> Y-axis, top: posterior probability density
+>
+> mid: simulated probability density
+>
+> but: combined density of water from simulated sample
+>
+> Sample each point of the posterior probability make sampling distributions.
+>
+> Combine all of the sampling distribution to make the posterior predictive distribution.
 
 ## Simulate Data Given Parameter
 
@@ -42,13 +53,15 @@ glimpse(W)
 
 Things to know and consider:
 
-- (Replace the crossed-out text with an explanation that's true for your blood or patent example) Our model says that it's a fair approximation to say that observations of whether a randomly-chosen ~~point on the globe is land or water~~ are like draws from a binomial distribution, and we are trying to estimate the probability of ~~any one "trial" or chosen point on the globe being water~~.
-- The **posterior** gives us our "answer" -- the estimate of the probability ~~of water~~.
-- `rbinom()` is a function that produces *random samples* from a binomial distribution. The inputs are `n`, the number of random samples you want; `size`, the number of *trials* making up each sample; and `prob`, the probability of getting a "success."
-- So...how did we choose the `n` to be 10,000? Why is the `size` 9? And how was 0.71 picked as the `prob`? *Hint: there's a problem with just using 0.71!)*
-- Why was the output called `W` and what might you call it in your (blood or patent) example?
+-   (Replace the crossed-out text with an explanation that's true for your blood or patent example) Our model says that it's a fair approximation to say that observations of whether a randomly-chosen point on human body is blood or not blood are like draws from a binomial distribution, and we are trying to estimate the probability of any one "trial" or chosen point on human body being blood.
+-   The **posterior** gives us our "answer" -- the estimate of the probability of blood.
+-   `rbinom()` is a function that produces *random samples* from a binomial distribution. The inputs are `n`, the number of random samples you want; `size`, the number of *trials* making up each sample; and `prob`, the probability of getting a "success."
+-   So...how did we choose the `n` to be 10,000? Why is the `size` 9? And how was 0.71 picked as the `prob`? *Hint: there's a problem with just using 0.71!)*
+-   Why was the output called `W` and what might you call it in your (blood or patent) example?
 
 #### Question: What's the problem with using a single value for `prob`, if our goal is to simulate data that are consistent with our model conclusions?
+
+> We will miss the *uncertainty*.
 
 ## Posterior Predictive Distribution
 
@@ -65,17 +78,17 @@ To get the posterior predictive distribution, we do just as above to simulate da
 
 #### Question: What is the difference between a *sample from the posterior* and a *posterior predictive distribution*? It might help to clearly state what units each one is measured in: probability, counts, etc.? Try including the words "data" and "parameter" and "model" in your answer.
 
-#### Question: How does `W_ppd` (the posterior predictive distribution) differ from the `W` you generated earlier using `rbinom()`?  You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
+#### Question: How does `W_ppd` (the posterior predictive distribution) differ from the `W` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
 
 ## Why, why, why?
 
 Why would we want a posterior predictive distribution, anyway? There are a bunch of reasons, such as...
 
-1. **Model design** We could simulate data like we did above, but using a sample *from the prior* instead of a sample from the posterior! This is called **prior predictive checking** and is a good way to see whether your choice of prior is realistic and mistake-free. If you think the data simulated from the prior is impossible or ridiculous, then *you* must know something that's not encoded in the prior (yet)!
-2. **Model Checking** Does the posterior predictive distribution look more-or-less like real data? If not, you probably made a mistake in coding/fitting your model, choosing the prior, or conceptualizing the model!
-3. **Software Validation** Beyond just checking if the posterior predictive distribution "looks okay," to further verify whether your model-fitting is working well, you can *generate* simulated data via the PPD and then *fit* the model to it. You should "recover" the parameter values used as input to the simulation, if everything is working right.
-4. **Research Design** You can use simulated data to help plan future research and data collection. You can answer all kinds of practical questions such as, "Given how this system works and how we're modeling it, how big of a sample size would be needed to reliably estimate the difference between ... and ... or the effect of ... on ...?"
-5. **Forecasting**: You can "simulate new predictions, for new cases and future observations. These forcasts can be useful as ... prediction, but also [to drive] model criticism and revision."
+1.  **Model design** We could simulate data like we did above, but using a sample *from the prior* instead of a sample from the posterior! This is called **prior predictive checking** and is a good way to see whether your choice of prior is realistic and mistake-free. If you think the data simulated from the prior is impossible or ridiculous, then *you* must know something that's not encoded in the prior (yet)!
+2.  **Model Checking** Does the posterior predictive distribution look more-or-less like real data? If not, you probably made a mistake in coding/fitting your model, choosing the prior, or conceptualizing the model!
+3.  **Software Validation** Beyond just checking if the posterior predictive distribution "looks okay," to further verify whether your model-fitting is working well, you can *generate* simulated data via the PPD and then *fit* the model to it. You should "recover" the parameter values used as input to the simulation, if everything is working right.
+4.  **Research Design** You can use simulated data to help plan future research and data collection. You can answer all kinds of practical questions such as, "Given how this system works and how we're modeling it, how big of a sample size would be needed to reliably estimate the difference between ... and ... or the effect of ... on ...?"
+5.  **Forecasting**: You can "simulate new predictions, for new cases and future observations. These forcasts can be useful as ... prediction, but also [to drive] model criticism and revision."
 
 #### Question: Which of these items do you think we will do the most? If you had to list the five in order of importance, which ones would be at the top?
 
@@ -83,8 +96,7 @@ Why would we want a posterior predictive distribution, anyway? There are a bunch
 
 ## Going Further (if extra time)
 
-- Try to generate a **prior predictive distribution** for the model you have been working with. 
-- How does it compare with the posterior predictive distribution? 
-- Based on it, do you think the prior you used was a good choice?
-- Try repeating this part (getting the prior predictive distribution) for almost-the-same model, but with a *different* prior.  Options: try using a *better* prior, or try using a *terrible* one. By "terrible" I mean untrue and inconsistent with what you know about the situation; not one so invalid that it will just cause the model fitting machinery to throw an error!
-
+-   Try to generate a **prior predictive distribution** for the model you have been working with.
+-   How does it compare with the posterior predictive distribution?
+-   Based on it, do you think the prior you used was a good choice?
+-   Try repeating this part (getting the prior predictive distribution) for almost-the-same model, but with a *different* prior. Options: try using a *better* prior, or try using a *terrible* one. By "terrible" I mean untrue and inconsistent with what you know about the situation; not one so invalid that it will just cause the model fitting machinery to throw an error!
