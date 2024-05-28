@@ -3,12 +3,12 @@ title: "Posterior Predictive Distributions"
 author: "STAT 341, SP23"
 date: "2023-01-25"
 output:
-  pdf_document:
-    toc: yes
   html_document:
     toc: yes
     toc_float: yes
     code_download: yes
+  pdf_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -27,10 +27,6 @@ knitr::opts_chunk$set(echo = TRUE)
 > They are both sampling parameter values from the posterior distribution, simulate new data for each sampled parameter, and combine them together.
 
 #### Question: The figure below is Figure 3.6 from *Statistical Rethinking,* illustrating how to obtain a posterior predictive distribution. How would you label the y axis of each plot? What process is happening to get from the Posterior Probability to the Sampling Distributions? What process is happening to get from the Sampling Distributions to the Posterior Predictive Distribution?
-
-```{r, echo = FALSE}
-knitr::include_graphics('https://stacyderuiter.github.io/stat341-s23/images/SRfig3p6.png')
-```
 
 > Y-axis, top: posterior probability density
 >
