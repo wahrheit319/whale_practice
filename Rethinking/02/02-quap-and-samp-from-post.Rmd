@@ -143,7 +143,7 @@ glimpse(samples)
 ```{r}
 gf_histogram(~p_grid, data = samples)
 gf_density(~p_grid, data = samples)
-# idk
+# how to summarize...
 ```
 
 ### Question 7: What's the best number of posterior samples to get? How would you recommend choosing?
