@@ -166,7 +166,7 @@ gf_line(value ~ p_grid,
 
 1.  What happens if you make the number of conjectured values of $p$ (the fine-ness of the grid) smaller, or larger? Re-run your code a few times to see what happens with very different grid resolutions.
 
-    > When p is higher, the posterior is more precise and smooth.
+    > When p is higher, the posterior is more precise and "smooth".
 
 2.  (*relies on previous R experience*) What if you use a different prior - how do results change?
 

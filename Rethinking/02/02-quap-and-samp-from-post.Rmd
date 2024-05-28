@@ -111,7 +111,7 @@ blood_data2 <-
 
 # how many samples would you like?
 # (you may play with adjusting this if you want)
-n_samples <- 3000
+n_samples <- 2000
 
 # make it reproducible: get the same exact samples each time
 # by setting the "seed" of the random number generator
@@ -147,4 +147,4 @@ gf_violin(p_grid ~ "", data = samples)
 
 ### Question 7: What's the best number of posterior samples to get? How would you recommend choosing?
 
-> I recommend around 3000, if it's too low the graph looks rough, if it's too high the graph looks like a chainsaw.
+> I recommend around 2000, if it's too low the graph looks rough, if it's too high the graph looks like a chainsaw.
