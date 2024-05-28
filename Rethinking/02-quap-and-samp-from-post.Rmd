@@ -15,11 +15,17 @@ knitr::opts_chunk$set(echo = TRUE, fig.width = 6.5, fig.height = 3.5)
 
 For this exercise you'll want a **posterior** to *sample from* and *summarize*, so start with the `tibble` (data table) you ended with last time, containing the `p_grid`, `prior`, `likelihood` and `posterior` for our class example. (Copy over whatever code is needed from there, to here...)
 
-##  Alternate Route to Posterior: `quap()` and MCMC
+## Alternate Route to Posterior: `quap()` and MCMC
 
-So far, you got your posterior via **grid search** -- conjecture a set of discrete values (as many as you choose) for your parameter $p$, and compute the likelihood of the data  and the value of the  posterior corresponding to each one. Put all those posterior values together and you get the  posterior distribution. It's an intuitive way to start, but...
+So far, you got your posterior via **grid search** -- conjecture a set of discrete values (as many as you choose) for your parameter $p$, and compute the likelihood of the data and the value of the posterior corresponding to each one. Put all those posterior values together and you get the posterior distribution. It's an intuitive way to start, but...
 
-### Question 1: What  are the downsides of this way of estimating the posterior?
+### Question 1: What are the downsides of this way of estimating the posterior?
+
+> From the book [Bayes Rules](https://www.bayesrulesbook.com/chapter-6#grid-approximation).
+>
+> "Grid approximation suffers from the curse of dimensionality, if we have more than one parameter, the gaps in the approximation are bigger.
+>
+> When evaluated on finer and finer grids, the grid approximation method becomes computationally expensive. MCMC methods provide a more flexible."
 
 Later in the course, we will learn to fit Bayesian models using Markov Chain Monte Carlo (MCMC) and once we learn it *that* will be our main approach.
 
@@ -27,14 +33,16 @@ Meanwhile, we'll consider one more way to fit models that is perhaps in-between 
 
 As *Rethinking* says on page 42,
 
->> the region near the peak of the posterior distribution will be nearly Gaussian — or "normal" — in  shape...A Gaussian approximation is called "quadratic approximation" because the [natural] logarithm of  a Gaussian distribution forms a parabola. And a parabola is a quadratic function. So this  approximation essentially represents any log-posterior with a parabola.
+> > the region near the peak of the posterior distribution will be nearly Gaussian — or "normal" — in shape...A Gaussian approximation is called "quadratic approximation" because the [natural] logarithm of a Gaussian distribution forms a parabola. And a parabola is a quadratic function. So this approximation essentially represents any log-posterior with a parabola.
 
-###  Question 2: Using your previous graph(s) to check, do you think this is true for our example?
+### Question 2: Using your previous graph(s) to check, do you think this is true for our example?
+
+> Yes, so true.
 
 There are 2 steps in the `quap()` process:
 
-1) Find the location of the posterior mode (highest peak of posterior likelihood)
-2) Estimate  the curvature of the posterior near the peak (usually using a numerical method)
+1)  Find the location of the posterior mode (highest peak of posterior likelihood)
+2)  Estimate the curvature of the posterior near the peak (usually using a numerical method)
 
 ### Question 3: Based on your previous graphs, estimate where the posterior mode is for our example.
 
@@ -43,7 +51,7 @@ OK, now try out `quap()`!
 ```{r, fit-with-quap}
 library(rethinking)
 
-# be sure to translate everything from water  to blood!
+# be sure to translate everything from water to blood!
 RENAME_ME <- quap(
   alist(
     # W stands for "Water" you may want to rename to match your data!
@@ -73,7 +81,7 @@ get_blood_samples <- function(n, p = 0.115){
 bigger_blood_data  <- get_blood_samples(n = 30)
 ```
 
-### Question 4 [OPTIONAL/if time]: So, how *does* the quadratic approximation perform as you increase the dataset size? *Note, you have to have some idea of how to judge what  the "right answer" (true posterior) is in order to answer this!*
+### Question 4 [OPTIONAL/if time]: So, how *does* the quadratic approximation perform as you increase the dataset size? *Note, you have to have some idea of how to judge what the "right answer" (true posterior) is in order to answer this!*
 
 ## Where Next: Interpret & Present the Posterior
 
@@ -82,6 +90,7 @@ Once you have the posterior, you have your answer! Right?!?
 Well...yes, and no. You need to be able to interpret it, and clearly communicate what it means. Let's devise some tools.
 
 ## Samples vs. Function
+
 Before, you worked to compute and graph the **probability distribution function** that is the posterior.
 
 So for every conjectured value of the parameter $p$ = $P(Blood)$, you could say how likely it is, given the sample data, relative to other possible conjectured values of $p$.
@@ -111,9 +120,8 @@ samples <-
 glimpse(samples)
 ```
 
+### Question 5: Why did we create `samples` as a standalone object, instead of making it a variable in the `blood_data2` tibble (tibble = dataset $\approx$ data.frame)?
 
-### Question 5: Why did we create `samples` as a  standalone object, instead of making it a variable in the `blood_data2` tibble (tibble = dataset $\approx$ data.frame)?
+### Question 6: How can you **show** (in a graph) and **summarize** (with numbers and calculations?) the posterior, using the sample `samples`? Come up with as many ideas as you can and implement them.
 
-### Question 6: How can you **show** (in a graph) and **summarize** (with numbers and calculations?) the posterior, using the sample `samples`? Come up with as many ideas as you can and implement them. 
-
-### Question 7: What's the best number of  posterior samples to get? How would you recommend choosing?
+### Question 7: What's the best number of posterior samples to get? How would you recommend choosing?
