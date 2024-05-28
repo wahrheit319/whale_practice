@@ -8,6 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(mosaic)
+library(rethinking)
+library(ggformula)
+
 knitr::opts_chunk$set(echo = TRUE, fig.width = 6.5, fig.height = 3.5)
 ```
 
@@ -51,8 +54,6 @@ There are 2 steps in the `quap()` process:
 OK, now try out `quap()`!
 
 ```{r, fit-with-quap}
-library(rethinking)
-
 # be sure to translate everything from water to blood!
 blood_quap <- quap(
   alist(
@@ -138,8 +139,6 @@ glimpse(samples)
 ### Question 6: How can you **show** (in a graph) and **summarize** (with numbers and calculations?) the posterior, using the sample `samples`? Come up with as many ideas as you can and implement them.
 
 ```{r}
-library(ggformula)
-
 gf_histogram(~p_grid, data = samples)
 gf_density(~p_grid, data = samples)
 gf_violin(p_grid ~ "", data = samples)
