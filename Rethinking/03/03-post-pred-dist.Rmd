@@ -68,11 +68,14 @@ To get the posterior predictive distribution, we do just as above to simulate da
 ```{r}
 # add code here to: 1) fit your model and 2) generate post_samples, a sample from the posterior, from it
 # uncomment this code when ready to run (it will not run until post_samples exists!)
+# post_samples <- 
 # W_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
 # glimpse(W)
 ```
 
 #### Question: What is the difference between a *sample from the posterior* and a *posterior predictive distribution*? It might help to clearly state what units each one is measured in: probability, counts, etc.? Try including the words "data" and "parameter" and "model" in your answer.
+
+> uhhh
 
 #### Question: How does `W_ppd` (the posterior predictive distribution) differ from the `W` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
 
