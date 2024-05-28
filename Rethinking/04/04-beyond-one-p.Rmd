@@ -13,8 +13,10 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-library(ggformula)
+library(mosaic)
 library(rethinking)
+library(ggformula)
+library(bayesrules)
 knitr::opts_chunk$set(echo = TRUE)
 theme_set(theme_minimal(base_size = 16))
 ```
@@ -75,7 +77,11 @@ The only new one we'll really use for the moment is the **Normal or Gaussian dis
 
 #### Question: Drawing on previous knowledge (and maybe the charts above), is the Normal distribution discrete or continuous? What is its support?
 
+> Normal distribution is continuous, and its support is from $-\infty$ to $\infty$.
+
 #### Question: If we somehow used a normal distribution in a model, what would be really different about our posterior? (*Hint: at least twice the fun...*)
+
+> Mean and standard deviation.
 
 #### Question: Try to explain in words what the R code, and output, below mean.
 
@@ -84,6 +90,10 @@ dnorm(0, mean = 0, sd = 0.1)
 dnorm(0, mean = 2, sd = 10)
 rnorm(7, mean = 44, sd = 10)
 ```
+
+> 1.  Calculates the density at 0 for normal distribution with mean = 0 and sd = 0.1.
+> 2.  Calculates the density at 0 for normal distribution with mean = 2 and sd = 10.
+> 3.  Generate 7 random samples from a normal distribution with mean = 44 and sd = 10.
 
 *Hint: remember you can use `gf_dist('dist_name', parameter_name = value, parameter2_name = value)` to draw a probability distribution if it helps you visualize!*
 
@@ -106,6 +116,10 @@ Rearrange the items below and fill in the blanks to get a description of our blo
 
 #### Question: A complete model description has to tell us all about the prior(s) and the likelihood. In your description above, which are which?
 
+> Prior is Uniform(0, 1)
+>
+> likelihood is Binomial(n, p)
+
 ## Practice Describing a Model
 
 Your book considers a model for $i = 1, 2, 3, ...n$ observations of peoples' heights, so $\text{height}_i$ is the height given in the $i$th row of the dataset.
@@ -120,17 +134,54 @@ $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 50)$$
 
 #### Question: Can you explain in words what this model description is saying?
 
+> A person is normally distributed with a mean of 178 cm and standard deviation of 20 cm.
+>
+> The sigma is uniformly distributed between 0 and 50.
+
 #### Question: What part tells us about the prior? What part about the likelihood?
+
+> likelihood is $$\text{height}_i \sim \text{Normal}(\mu, \sigma)$$
+>
+> priors are
+>
+> $$\mu \sim \text{Normal}(\text{mean} = 178, \text{sd} = 20)$$
+>
+> $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 50)$$
 
 #### Task: use `gf_dist()` to draw the two priors. *Note: there are two now, in our ONE model, because we are estimating more than one parameter!*
 
+```{r}
+gf_dist("norm", mean = 178, sd = 20)
+gf_dist("unif", min = 0, max = 50)
+```
+
 #### Question: Based on the priors given, what do you think the units of measure of the height data are?
+
+> Centimeters.
 
 #### Question: Why were Normal and Uniform distributions chosen; would you choose the same? (*Advanced add-on: what is tricky about the support of* $\sigma$ compared to $\mu$? Do you have any related worry about the support of the height data?)
 
+> Normal distribution is chosen because the bell shape makes sense for people's heights.
+>
+> Uniform distribution is chosen because we assume all values equally 0 and 50 equally likely.
+>
+> I would chose normal distribution for $\mu$, but I'm not sure about $\sigma$ is equally likely between 0 and 50, most people are within a range.
+>
+> I worry that uniform distribution for $\sigma$ is not accurate.
+
 #### Question: How might you adjust the prior to better reflect your own knowledge?
 
+> Maybe change the uniform distribution to (0,20).
+
 #### Task: use `rnorm()` and `runif()` to *simulate* some fake data based on the **priors** stated above -- or your new-and-improved ones! Use `gf_histogram()` to make a histogram of the resulting fake-height-data to check it out. (Remember, this is called a *prior* predictive distribution...why is it useful?)
+
+```{r}
+mu_prior <- rnorm(10000, mean = 178, sd = 20)
+sigma_prior <- runif(10000, min = 0, max = 50)
+height_prior <- rnorm(10000, mean = mu_prior, sd = sigma_prior)
+
+gf_histogram(~ height_prior)
+```
 
 ## Another Example
 
@@ -146,10 +197,19 @@ Let's consider modeling the `water_expenses_pp` variable, which is water expense
 
 #### Task: Without further peeking at the data first -- but you can use a web search if you like -- set up a model analogous to the height model above, but for the `water_expenses_pp` variable. Write it down in our new notation.
 
+> $$\text{water_expenses_pp}_i \sim \text{Normal}(\mu, \sigma)$$
+>
+> $$\mu \sim \text{Normal}(\text{mean} = 10, \text{sd} = 5)$$
+>
+> $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 15)$$
+
 ## More time?
 
 -   Consider the same questions I asked you about the height example, but now for the water-cost example.
+
 -   Right now we still have *only one* data variable, so none of the causal diagram stuff comes into play yet...can you imagine how it *will* soon come into play?
+
+    > We will have more variables like household income, number of adults/children... for more complex model?
 
 ## What's next?
 

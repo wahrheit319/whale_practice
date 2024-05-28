@@ -14,6 +14,9 @@ output:
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(mosaic)
+library(rethinking)
+library(ggformula)
+library(bayesrules)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -24,17 +27,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Question: Discuss why and how the two definitions of "posterior predictive distribution" are equivalent.
 
-> They are both sampling parameter values from the posterior distribution, simulate new data for each sampled parameter, and combine them together.
+> They are both sampling parameter values from the posterior distribution, simulate new data for each sampled values, and combine them together.
 
 #### Question: The figure below is Figure 3.6 from *Statistical Rethinking,* illustrating how to obtain a posterior predictive distribution. How would you label the y axis of each plot? What process is happening to get from the Posterior Probability to the Sampling Distributions? What process is happening to get from the Sampling Distributions to the Posterior Predictive Distribution?
 
-> Y-axis, top: posterior probability density
+> Y-axis,
 >
-> mid: simulated probability density
+> top: posterior probability density
 >
-> but: combined density of water from simulated sample
+> mid: simulated probability for each sample
 >
-> Sample each point of the posterior probability make sampling distributions.
+> bottom: combined probability of water from simulated sample
+>
+> Sample each parameter value of the posterior probability make sampling distributions.
 >
 > Combine all of the sampling distribution to make the posterior predictive distribution.
 
@@ -43,17 +48,30 @@ knitr::opts_chunk$set(echo = TRUE)
 *The code below is for the book's "proportion water on the Earth" example. Please change it so it's relevant to the "blood" example OR the "product patent" example.*
 
 ```{r}
-W <- rbinom(n = 10000, size = 9, prob = 0.71)
-glimpse(W)
+set.seed(3)
+B <- rbinom(n = 10000, size = 9, prob = 0.33)
+glimpse(B)
 ```
 
 Things to know and consider:
 
 -   (Replace the crossed-out text with an explanation that's true for your blood or patent example) Our model says that it's a fair approximation to say that observations of whether a randomly-chosen point on human body is blood or not blood are like draws from a binomial distribution, and we are trying to estimate the probability of any one "trial" or chosen point on human body being blood.
+
 -   The **posterior** gives us our "answer" -- the estimate of the probability of blood.
+
 -   `rbinom()` is a function that produces *random samples* from a binomial distribution. The inputs are `n`, the number of random samples you want; `size`, the number of *trials* making up each sample; and `prob`, the probability of getting a "success."
+
 -   So...how did we choose the `n` to be 10,000? Why is the `size` 9? And how was 0.71 picked as the `prob`? *Hint: there's a problem with just using 0.71!)*
+
+    > n = 10000 because we want to have a large sample size taht is enough for the simulation.
+    >
+    > size = 9 because there are 9 trials.
+    >
+    > 0.33 is the probability of success, but we are missing the uncertainty.
+
 -   Why was the output called `W` and what might you call it in your (blood or patent) example?
+
+    > W is water, but for my example it would be B, blood.
 
 #### Question: What's the problem with using a single value for `prob`, if our goal is to simulate data that are consistent with our model conclusions?
 
@@ -68,16 +86,36 @@ To get the posterior predictive distribution, we do just as above to simulate da
 ```{r}
 # add code here to: 1) fit your model and 2) generate post_samples, a sample from the posterior, from it
 # uncomment this code when ready to run (it will not run until post_samples exists!)
-# post_samples <- 
-# W_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
-# glimpse(W)
+
+blood_quap <- quap(
+  alist(
+    obs ~ dbinom(size = n, prob = p),  # binomial likelihood 
+    p ~ dunif(0, 1)        # **uniform** prior for the probability of success, "p"
+  ), 
+  data = list(obs = 3, n = 9)
+)
+post_samples <- extract.samples(blood_quap, n = 10000)$p |>
+  na.omit()
+B_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
+glimpse(B_ppd)
 ```
 
 #### Question: What is the difference between a *sample from the posterior* and a *posterior predictive distribution*? It might help to clearly state what units each one is measured in: probability, counts, etc.? Try including the words "data" and "parameter" and "model" in your answer.
 
-> uhhh
+> A *sample from the posterior* is the distribution of the model's parameter from the data.
+>
+> A *posterior predictive distribution* is the distribution predicting future data using samples from the posterior and model's parameter.
 
-#### Question: How does `W_ppd` (the posterior predictive distribution) differ from the `W` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
+#### Question: How does `B_ppd` (the posterior predictive distribution) differ from the `B` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
+```{r}
+B_data <- tibble(value = B)
+B_ppd_data <- tibble(value = B_ppd)
+
+gf_histogram(~ value, data = tibble(value = B), fill = "red", binwidth = 1) |>
+  gf_histogram(~ value, data = tibble(value = B_ppd), fill = "blue", binwidth = 1)
+```
+what is wrong?...
+
 
 ## Why, why, why?
 
