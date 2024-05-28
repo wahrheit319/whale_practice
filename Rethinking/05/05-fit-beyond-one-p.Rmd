@@ -22,6 +22,7 @@ fiji <- read_csv('https://sldr.netlify.app/data/fiji-filters.csv')
 ```
 
 ## What Came Before
+
 We learned some *notation* to keep track of the plan for a model with more than one parameter (but still just one variable).
 
 Now we need to fit it!
@@ -34,22 +35,22 @@ Apparently we have "a model with more than one parameter (but still just one var
 
 #### Question 1: In the `water_expenses_pp` model, which is the **variable** (Hint: it will correspond to a column in your dataset) and what are the **parameters** (quantities you will estimate, a.k.a. get posteriors for by fitting your model)? *It's crucial to be able to clearly identify which is which as you plan a model!*
 
-#### Question 2: Which of these may go in a causal diagram: variables, parameters, priors, posteriors, likelihood? (Hint: the causal diagram for the `water_expenses_pp` model we are about  to fit will be one node (dot) with *no* arrows.)
+#### Question 2: Which of these may go in a causal diagram: variables, parameters, priors, posteriors, likelihood? (Hint: the causal diagram for the `water_expenses_pp` model we are about to fit will be one node (dot) with *no* arrows.)
 
 ## Challenges
 
 Fitting this model will not be a straightforward copy of our previous examples, because:
 
-- We have more than one prior (and posterior distribution) to keep track of
-- The data can't easily be summarized by two numbers: instead it's a list of $n$ `water_expenses_pp` values.
-- We need to think about how to compute the likelihood of each `water_expenses_pp` value *and then* combine them all together into one *joint likelihood* for the whole dataset. If the individual cases are independent, then **the joint likelihood is the product of the individual likelihoods of all the $n$ datapoints.**
-- For some conjectured parameter values, the likelihood may be a *tiny* number. If we multiply many of these together, we will quickly get a number so small R thinks it is zero! (No good.) To get around this we need some math.
+-   We have more than one prior (and posterior distribution) to keep track of
+-   The data can't easily be summarized by two numbers: instead it's a list of $n$ `water_expenses_pp` values.
+-   We need to think about how to compute the likelihood of each `water_expenses_pp` value *and then* combine them all together into one *joint likelihood* for the whole dataset. If the individual cases are independent, then **the joint likelihood is the product of the individual likelihoods of all the** $n$ datapoints.
+-   For some conjectured parameter values, the likelihood may be a *tiny* number. If we multiply many of these together, we will quickly get a number so small R thinks it is zero! (No good.) To get around this we need some math.
 
 ## Log-likelihood
 
-We said before that the joint likelihood of a whole set of independent observations is the product of all the individual likelihoods. Letting  $y_i$ be the  ith data value, and $\ell$ the likelihood, we can write this:
+We said before that the joint likelihood of a whole set of independent observations is the product of all the individual likelihoods. Letting $y_i$ be the ith data value, and $\ell$ the likelihood, we can write this:
 
-$$\mathcal{L}(y_1, y_2, y_3, \dots y_n) = \prod_{i=1}^{n} \mathcal{L}(y_i)$$ 
+$$\mathcal{L}(y_1, y_2, y_3, \dots y_n) = \prod_{i=1}^{n} \mathcal{L}(y_i)$$
 
 The natural logarithm is a monotonic transformation so if likelihood A is bigger than likelihood B, then the ln(likelihood A) is bigger than ln(likelihood B). So, if we want to work with log-likelihoods instead of likelihoods, we can. We do! Why? Because...
 
@@ -61,7 +62,7 @@ Similarly, notice that according to the laws of logarithms,
 
 $$ln(\text{prior} * \mathcal{L}) = ln(\text{prior}) + ln(\mathcal{L})$$
 
-so the un-scaled posterior (prior * likelihood) can also be computed as
+so the un-scaled posterior (prior \* likelihood) can also be computed as
 
 $$e^{(ln(\text{prior}) + ln(\mathcal{L}))}$$
 
@@ -75,10 +76,7 @@ We can simulate data based on our **priors** to get a **prior predictive distrib
 
 My model is going to be for `household_annual_income` in thousands of Fijian dollars:
 
-$$\text{annual income}_i \sim \text{Normal}(\mu, \sigma)$$
-$$\mu \sim \text{Normal}(\text{mean}_1 = 50, \text{sd}_1 = 20)$$
-$$\sigma \sim \text{Normal}(\text{mean}_2 = 15, \text{sd}_2 = 20)$$
-I can simulate data according to that specification:
+$$\text{annual income}_i \sim \text{Normal}(\mu, \sigma)$$ $$\mu \sim \text{Normal}(\text{mean}_1 = 50, \text{sd}_1 = 20)$$ $$\sigma \sim \text{Normal}(\text{mean}_2 = 15, \text{sd}_2 = 20)$$ I can simulate data according to that specification:
 
 ```{r, warning = FALSE}
 nsim <- 1000
@@ -109,7 +107,7 @@ gf_histogram(~income,
 
 Immediately, I see a problem (I knew I would - that's why I chose this example for myself!).
 
-I generated some negative incomes, which is not possible! I also got a  warning about NA incomes...can you see why?
+I generated some negative incomes, which is not possible! I also got a warning about NA incomes...can you see why?
 
 ```{r}
 head(prior_pred_dist, 15)
@@ -123,9 +121,9 @@ So before fitting this model, I should go back to the drawing board!
 
 Repeat the process demonstrated above (model description and prior predictive check) for your model for `water_expenses_pp`.
 
-##  My Grid-search Model Fit 
+## My Grid-search Model Fit
 
-I am going to fit my (stupid unrealistic) model just to demonstrate how to set up the code. Since it  already failed the prior predictive check, we should expect unreliable results -- *unless* the dataset is big enough to "overrule" any prior wrong-ness...
+I am going to fit my (stupid unrealistic) model just to demonstrate how to set up the code. Since it already failed the prior predictive check, we should expect unreliable results -- *unless* the dataset is big enough to "overrule" any prior wrong-ness...
 
 ```{r, set-up-grid}
 # number of conjectures to try for each parameter
@@ -194,10 +192,10 @@ Finally, we need to scale the posterior. Before when we were on the natural (non
 
 $$\text{posterior}_i = \frac{\text{unscaled posterior}_i}{\sum_{i=1}^{n} \text{unscaled posterior}_i}$$
 
-so we may want to do something like that here: scale so all the posterior values add up to 1. But there are 2 problems with that: 
+so we may want to do something like that here: scale so all the posterior values add up to 1. But there are 2 problems with that:
 
-- If we do it all the "probabilities" will be so small they round to zero (computational problems)
-- The posterior should be a *normal* distribution so it should *integrate* to 1 not *add up* to 1!
+-   If we do it all the "probabilities" will be so small they round to zero (computational problems)
+-   The posterior should be a *normal* distribution so it should *integrate* to 1 not *add up* to 1!
 
 So what if we just stick to the un-scaled posteriors but exponentiate to get back on the natural scale?
 
@@ -212,7 +210,7 @@ gf_line(unscaled_posterior ~ mu,
 
 Uh, oh - this is rounding error, not a result. All our unscaled-log-posterior values are so small that when we convert to the non-log scale they all round (incorrectly) to zero.
 
-We only really care about the relative values anyway, so we need  to standardize the posterior values somehow such that they won't all round to 0 on the natural scale. Your book's solution is to divide by the maximum un-scaled posterior value. (On the log scale, this is subtracting the max.)
+We only really care about the relative values anyway, so we need to standardize the posterior values somehow such that they won't all round to 0 on the natural scale. Your book's solution is to divide by the maximum un-scaled posterior value. (On the log scale, this is subtracting the max.)
 
 ```{r, overwrite-that-bad-posterior}
 grid_income_model <- grid_income_model |>
@@ -254,7 +252,7 @@ gf_point(mu ~ sigma, # show both parameters
 
 ## Your Turn!
 
-Repeat the process shown above to fit the model via grid search and then obtain and graph a posterior sample, but for *your* model of `water_expenses_pp`. 
+Repeat the process shown above to fit the model via grid search and then obtain and graph a posterior sample, but for *your* model of `water_expenses_pp`.
 
 #### Question 5. Describe, show or sketch the posterior you end up with. (Since the dataset is pretty large, we should all agree pretty closely in our conclusions even if we have somewhat different prior choices...)
 

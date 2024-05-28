@@ -91,6 +91,8 @@ Why would we want a posterior predictive distribution, anyway? There are a bunch
 
 #### Question: Which of these items do you think we will do the most? If you had to list the five in order of importance, which ones would be at the top?
 
+> Model checking?
+
 *The item names on this list, and the quote in #5, were taken from SR Chapter 3, page 61.*
 
 ## Going Further (if extra time)
