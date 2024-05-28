@@ -46,24 +46,26 @@ There are 2 steps in the `quap()` process:
 
 ### Question 3: Based on your previous graphs, estimate where the posterior mode is for our example.
 
+> Around 0.33.
+
 OK, now try out `quap()`!
 
 ```{r, fit-with-quap}
 library(rethinking)
 
 # be sure to translate everything from water to blood!
-RENAME_ME <- quap(
+blood_quap <- quap(
   alist(
     # W stands for "Water" you may want to rename to match your data!
     # (you will need to fill in the blanks)
-    obs ~ dbinom(____, ____),  # binomial likelihood 
-    p ~ dunif(0 , 1)        # **uniform** prior for the probability of success, "p"
+    obs ~ dbinom(n, p),  # binomial likelihood 
+    p ~ dunif(0, 1)        # **uniform** prior for the probability of success, "p"
   ), 
-  data = list(W = ___, L = ___)
+  data = list(obs = 3, n = 9)
 )
 
 # display summary of quadratic approximation 
-precis(your_renamed_results)
+precis(blood_quap)
 ```
 
 How well does this quadratic approximation work? Does it's accuracy depend on sample size? To find out, here's the function I used to generate our blood dataset and how you can use it to get a larger sample size $n$. You can try to roughly understand how I made it, but you won't need to do it yourself -- just use it to obtain larger datasets.
@@ -83,6 +85,8 @@ bigger_blood_data  <- get_blood_samples(n = 30)
 
 ### Question 4 [OPTIONAL/if time]: So, how *does* the quadratic approximation perform as you increase the dataset size? *Note, you have to have some idea of how to judge what the "right answer" (true posterior) is in order to answer this!*
 
+> The quadratic approximation perform more precise when I increase the dataset size, more sample = more information for the posterior.
+
 ## Where Next: Interpret & Present the Posterior
 
 Once you have the posterior, you have your answer! Right?!?
@@ -98,9 +102,16 @@ So for every conjectured value of the parameter $p$ = $P(Blood)$, you could say 
 Another way of coming at the problem could be to get a (hypothetical) *sample* from the posterior. A conjectured value of $p$ will show up in the sample more often if it has higher likelihood.
 
 ```{r}
+blood_data2 <-
+  tibble(p_grid = seq(from = 0, to = 1, length.out = 20),      # define grid
+         prior  = 1) |>                                       # define prior
+  mutate(likelihood = dbinom(3, size = 9, prob = p_grid)) |>  # compute likelihood at each value in grid
+  mutate(unstd_posterior = likelihood * prior) |>             # compute product of likelihood and prior
+  mutate(posterior = unstd_posterior / sum(unstd_posterior))   # standardize the posterior, 
+
 # how many samples would you like?
 # (you may play with adjusting this if you want)
-n_samples <- 10000
+n_samples <- 3000
 
 # make it reproducible: get the same exact samples each time
 # by setting the "seed" of the random number generator
@@ -122,6 +133,18 @@ glimpse(samples)
 
 ### Question 5: Why did we create `samples` as a standalone object, instead of making it a variable in the `blood_data2` tibble (tibble = dataset $\approx$ data.frame)?
 
+> We can easily control the sample size, and we don't want to affect the original blood_data2.
+
 ### Question 6: How can you **show** (in a graph) and **summarize** (with numbers and calculations?) the posterior, using the sample `samples`? Come up with as many ideas as you can and implement them.
 
+```{r}
+library(ggformula)
+
+gf_histogram(~p_grid, data = samples)
+gf_density(~p_grid, data = samples)
+gf_violin(p_grid ~ "", data = samples)
+```
+
 ### Question 7: What's the best number of posterior samples to get? How would you recommend choosing?
+
+> I recommend around 3000, if it's too low the graph looks rough, if it's too high the graph looks like a chainsaw.
