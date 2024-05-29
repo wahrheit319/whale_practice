@@ -63,7 +63,7 @@ Things to know and consider:
 
 -   So...how did we choose the `n` to be 10,000? Why is the `size` 9? And how was 0.71 picked as the `prob`? *Hint: there's a problem with just using 0.71!)*
 
-    > n = 10000 because we want to have a large sample size taht is enough for the simulation.
+    > n = 10000 because we want to have a large sample size that is enough for the simulation.
     >
     > size = 9 because there are 9 trials.
     >
@@ -75,7 +75,7 @@ Things to know and consider:
 
 #### Question: What's the problem with using a single value for `prob`, if our goal is to simulate data that are consistent with our model conclusions?
 
-> We will miss the *uncertainty*.
+> We will miss the *uncertainty*?
 
 ## Posterior Predictive Distribution
 
@@ -94,10 +94,11 @@ blood_quap <- quap(
   ), 
   data = list(obs = 3, n = 9)
 )
-post_samples <- extract.samples(blood_quap, n = 10000)$p |>
-  na.omit()
-B_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
-glimpse(B_ppd)
+# sample
+# post_samples <- sample(x = blood_quap, size = 10000, replace = TRUE) |>
+#   na.omit()
+# B_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
+# glimpse(B_ppd)
 ```
 
 #### Question: What is the difference between a *sample from the posterior* and a *posterior predictive distribution*? It might help to clearly state what units each one is measured in: probability, counts, etc.? Try including the words "data" and "parameter" and "model" in your answer.
@@ -107,15 +108,14 @@ glimpse(B_ppd)
 > A *posterior predictive distribution* is the distribution predicting future data using samples from the posterior and model's parameter.
 
 #### Question: How does `B_ppd` (the posterior predictive distribution) differ from the `B` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
+
 ```{r}
 B_data <- tibble(value = B)
-B_ppd_data <- tibble(value = B_ppd)
 
-gf_histogram(~ value, data = tibble(value = B), fill = "red", binwidth = 1) |>
-  gf_histogram(~ value, data = tibble(value = B_ppd), fill = "blue", binwidth = 1)
+gf_histogram(~ value, data = B_data, fill = "red", binwidth = 1)
 ```
-what is wrong?...
 
+what is wrong?...
 
 ## Why, why, why?
 

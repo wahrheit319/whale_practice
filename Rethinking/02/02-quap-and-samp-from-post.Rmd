@@ -74,10 +74,10 @@ precis(blood_quap)
 How well does this quadratic approximation work? Does it's accuracy depend on sample size? To find out, here's the function I used to generate our blood dataset and how you can use it to get a larger sample size $n$. You can try to roughly understand how I made it, but you won't need to do it yourself -- just use it to obtain larger datasets.
 
 ```{r}
-# create a  new R function to generate "blood or not" data with P(Blood) = 0.115
+# create a new R function to generate "blood or not" data with P(Blood) = 0.115
 get_blood_samples <- function(n, p = 0.115){
   blood_sample <- rbinom(n = n, size = 1, p = p)
-  blood_sample <- ifelse(blood_sample == 0, 'O', 'B')
+  blood_sample <- ifelse(blood_sample == 0, 'F', 'B')
   return(blood_sample)
 }
 ```
