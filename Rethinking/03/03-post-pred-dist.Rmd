@@ -95,11 +95,26 @@ blood_quap <- quap(
   ), 
   data = list(obs = 3, n = 9)
 )
-# sample
-# post_samples <- sample(x = blood_quap, size = 10000, replace = TRUE) |>
-#   na.omit()
-# B_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
-# glimpse(B_ppd)
+
+blood_data <-
+  tibble(p_grid = seq(from = 0, to = 1, length.out = 20),      # define grid
+         prior  = 1) |>                                       # define prior
+  mutate(likelihood = dbinom(3, size = 9, prob = p_grid)) |>  # compute likelihood at each value in grid
+  mutate(unstd_posterior = likelihood * prior) |>             # compute product of likelihood and prior
+  mutate(posterior = unstd_posterior / sum(unstd_posterior))   # standardize the posterior, 
+
+n_sample <- 10000
+post_samples <- 
+  blood_data |>
+  slice_sample(n = n_sample,
+               replace = TRUE,
+               weight_by = posterior)  |>
+  select(p_grid) |>
+  pull(p_grid)      
+
+
+B_ppd <- rbinom(n = 10000, size = 9, prob = post_samples)
+glimpse(B_ppd)
 ```
 
 #### Question: What is the difference between a *sample from the posterior* and a *posterior predictive distribution*? It might help to clearly state what units each one is measured in: probability, counts, etc.? Try including the words "data" and "parameter" and "model" in your answer.
@@ -112,8 +127,11 @@ blood_quap <- quap(
 
 ```{r}
 B_data <- tibble(value = B)
+Bppd_data <- tibble(value = B_ppd)
 
-gf_histogram(~ value, data = B_data, fill = "red", binwidth = 1)
+gf_histogram(~ value, data = B_data, fill = "red", binwidth = 1) |>
+  gf_histogram(~ value, data = Bppd_data, fill = "blue", binwidth = 1) 
+
 ```
 
 what is wrong?...
