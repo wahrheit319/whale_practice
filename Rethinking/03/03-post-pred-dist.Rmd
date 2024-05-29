@@ -123,7 +123,7 @@ glimpse(B_ppd)
 >
 > A *posterior predictive distribution* is the distribution predicting future data using samples from the posterior and model's parameter.
 
-#### Question: How does `B_ppd` (the posterior predictive distribution) differ from the `B` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `W` and `W_ppd` to help you figure it out.
+#### Question: How does `B_ppd` (the posterior predictive distribution) differ from the `B` you generated earlier using `rbinom()`? You can just explain based on your understanding so far, or if you are not sure, try making graphs of `B` and `B_ppd` to help you figure it out.
 
 ```{r}
 B_data <- tibble(value = B)
@@ -135,6 +135,8 @@ gf_histogram(~ value, data = B_data, fill = "red", binwidth = 1) |>
 ```
 
 what is wrong?...
+
+B_ppd is standardized posterior sample with uncertanty, B is just selecting 10000 samples doing size = 9, prob = 0.33. these parameters are fixed, without uncertainty.
 
 ## Why, why, why?
 
