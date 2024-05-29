@@ -202,7 +202,7 @@ Let's consider modeling the `water_expenses_pp` variable, which is water expense
 
 -   Right now we still have *only one* data variable, so none of the causal diagram stuff comes into play yet...can you imagine how it *will* soon come into play?
 
-    > We will have more variables like household income, number of adults/children... having more dimensions, more complex models?
+    > We will have use variables like household income, number of adults/children... having more dimensions, more complex models?
 
 ## What's next?
 
