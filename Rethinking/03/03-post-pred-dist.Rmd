@@ -136,7 +136,7 @@ gf_histogram(~ value, data = B_data, fill = "red", binwidth = 1) |>
 
 what is wrong?...
 
-B_ppd is standardized posterior sample with uncertanty, B is just selecting 10000 samples doing size = 9, prob = 0.33. these parameters are fixed, without uncertainty.
+B_ppd is standardized posterior sample with uncertanty, while B is just selecting 10000 samples doing size = 9, prob = 0.33. these parameters are fixed, without uncertainty.
 
 ## Why, why, why?
 
