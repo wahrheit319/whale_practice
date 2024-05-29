@@ -3,12 +3,13 @@ title: "Posterior Predictive Distributions"
 author: "STAT 341, SP23"
 date: "2023-01-25"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     toc: yes
     toc_float: yes
     code_download: yes
-  pdf_document:
-    toc: yes
+    self_contained: yes
 ---
 
 ```{r setup, include=FALSE}

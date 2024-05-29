@@ -7,8 +7,7 @@ output:
     toc: yes
     toc_float: yes
     code_download: yes
-  pdf_document:
-    toc: yes
+    self_contained: yes
 ---
 
 ```{r setup, include=FALSE}
