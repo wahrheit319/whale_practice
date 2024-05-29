@@ -3,12 +3,12 @@ title: "Beyond One Proportion"
 author: "STAT 341, Spring 2023"
 date: "2023-02-01"
 output:
-  pdf_document:
-    toc: yes
   html_document:
     toc: yes
     toc_float: yes
     code_download: yes
+  pdf_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -31,7 +31,7 @@ Now that we have a more solid grasp on what the prior, likelihood and posterior 
 
 ## Probability Distributions - Review (?)
 
-So far, we've seen the Uniform, Beta, and Binomial distributions. There are [A LOT MORE](http://www.math.wm.edu/~leemis/chart/UDR/UDR.html) options out there! Each one is a function that matches possible *values* of a variable (usually depicted on the x-axis) with a measure of how often they occur (usually on the y-axis).
+So far, we've seen the Uniform, Beta, and Binomial distributions. There are A LOT MORE options out there! Each one is a function that matches possible *values* of a variable (usually depicted on the x-axis) with a measure of how often they occur (usually on the y-axis).
 
 We can classify them into the categories of **discrete** and **continuous** distributions.
 
@@ -43,14 +43,6 @@ The **support** of a distribution describes the range of values a variable can h
 Knowing all this, you can choose a distribution that is a good fit for a variable by matching its type and support.
 
 Here are some flow charts that try to illustrate the process:
-
-```{r, echo = FALSE, out.width = '90%', fig.cap="Figure 6A.15 from Damodaran's 'Probabilistic approaches to risk', republished in Fong Chun Chan's Blog"}
-knitr::include_graphics('https://tinyheero.github.io/assets/prob-distr/overview-prob-distr.png')
-```
-
-```{r, echo = FALSE, out.width = '90%', fig.cap="From Ghanegolmohammadi et al. 2022, BMC Biology"}
-knitr::include_graphics('https://media.springernature.com/full/springer-static/image/art%3A10.1186%2Fs12915-022-01283-6/MediaObjects/12915_2022_1283_Fig3_HTML.png')
-```
 
 ## Distributions in R
 
@@ -86,9 +78,9 @@ The only new one we'll really use for the moment is the **Normal or Gaussian dis
 #### Question: Try to explain in words what the R code, and output, below mean.
 
 ```{r}
-dnorm(0, mean = 0, sd = 0.1)
-dnorm(0, mean = 2, sd = 10)
-rnorm(7, mean = 44, sd = 10)
+dnorm(0, mean = 0, sd = 0.1) # 1
+dnorm(0, mean = 2, sd = 10) # 2
+rnorm(7, mean = 44, sd = 10) # 3
 ```
 
 > 1.  Calculates the density at 0 for normal distribution with mean = 0 and sd = 0.1.
@@ -116,15 +108,15 @@ Rearrange the items below and fill in the blanks to get a description of our blo
 
 #### Question: A complete model description has to tell us all about the prior(s) and the likelihood. In your description above, which are which?
 
-> Prior is Uniform(0, 1)
+> Prior: $\sigma$ \~ Uniform(0, 1)
 >
-> likelihood is Binomial(n, p)
+> Likelihood: b \~ Binomial(n, p)
 
 ## Practice Describing a Model
 
 Your book considers a model for $i = 1, 2, 3, ...n$ observations of peoples' heights, so $\text{height}_i$ is the height given in the $i$th row of the dataset.
 
-*Eek, suddenly we're using a fair bit of mathematical notation in R. If you love it, LOVELY. If you need help, [a brief reference guide is available](https://connect.cs.calvin.edu/STAT341/symbols/). If you want to just use paper, that's ok too. Go back and forth from the Rmd to the the compiled version to get a sense for how the (LaTeX-y) notation works, too.*
+*Eek, suddenly we're using a fair bit of mathematical notation in R. If you love it, LOVELY. If you need help, a brief reference guide is available. If you want to just use paper, that's ok too. Go back and forth from the Rmd to the the compiled version to get a sense for how the (LaTeX-y) notation works, too.*
 
 $$\text{height}_i \sim \text{Normal}(\mu, \sigma)$$
 
@@ -163,15 +155,15 @@ gf_dist("unif", min = 0, max = 50)
 
 > Normal distribution is chosen because the bell shape makes sense for people's heights.
 >
-> Uniform distribution is chosen because we assume all values equally 0 and 50 equally likely.
+> Uniform distribution is chosen because we assume standard deviations are equally likely between 0 and 50.
 >
-> I would chose normal distribution for $\mu$, but I'm not sure about $\sigma$ is equally likely between 0 and 50, most people are within a range.
+> I would chose normal distribution for $\mu$, but I'm not sure about $\sigma$ is equally likely between 0 and 50, there are some giants...
 >
-> I worry that uniform distribution for $\sigma$ is not accurate.
+> I worry that uniform distribution for $\sigma$ is not accurate, 2 standard deviations is 1 meter.
 
 #### Question: How might you adjust the prior to better reflect your own knowledge?
 
-> Maybe change the uniform distribution to (0,20).
+> Maybe change the uniform distribution to (0,15).
 
 #### Task: use `rnorm()` and `runif()` to *simulate* some fake data based on the **priors** stated above -- or your new-and-improved ones! Use `gf_histogram()` to make a histogram of the resulting fake-height-data to check it out. (Remember, this is called a *prior* predictive distribution...why is it useful?)
 
@@ -183,9 +175,11 @@ height_prior <- rnorm(10000, mean = mu_prior, sd = sigma_prior)
 gf_histogram(~ height_prior)
 ```
 
+> Prior predictive distribution is useful because we can see the assumptions we have put in to the priors for the parameters of the model and not rely on any observation.
+
 ## Another Example
 
-Consider a data set based on Tintle et al. 2019, ["Evaluating the efficacy of point-of-use water filtration units in Fiji"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6686492/). In this study, water filters were distributed to households in Fiji to provide better access to safer drinking water, and data was collected on money spent on water, and health outcomes, before and after filter distribution.
+Consider a data set based on Tintle et al. 2019, "Evaluating the efficacy of point-of-use water filtration units in Fiji". In this study, water filters were distributed to households in Fiji to provide better access to safer drinking water, and data was collected on money spent on water, and health outcomes, before and after filter distribution.
 
 ```{r}
 fiji_water <- read_csv('https://sldr.netlify.app/data/fiji-filters.csv',
@@ -197,9 +191,9 @@ Let's consider modeling the `water_expenses_pp` variable, which is water expense
 
 #### Task: Without further peeking at the data first -- but you can use a web search if you like -- set up a model analogous to the height model above, but for the `water_expenses_pp` variable. Write it down in our new notation.
 
-> $$\text{water_expenses_pp}_i \sim \text{Normal}(\mu, \sigma)$$
+> $$\text{water_expense_pp}_i \sim \text{Normal}(\mu, \sigma)$$
 >
-> $$\mu \sim \text{Normal}(\text{mean} = 10, \text{sd} = 5)$$
+> $$\mu \sim \text{Normal}(\text{mean} = 10, \text{sd} = 3)$$
 >
 > $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 15)$$
 
@@ -209,7 +203,7 @@ Let's consider modeling the `water_expenses_pp` variable, which is water expense
 
 -   Right now we still have *only one* data variable, so none of the causal diagram stuff comes into play yet...can you imagine how it *will* soon come into play?
 
-    > We will have more variables like household income, number of adults/children... for more complex model?
+    > We will have more variables like household income, number of adults/children... having more dimensions, more complex models?
 
 ## What's next?
 
