@@ -11,6 +11,9 @@ output:
     code_folding: show
   pdf_document:
     toc: yes
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -28,8 +31,8 @@ Recall Prof DR's model for Fijian income:
 
 $$\text{annual income}_i \sim \text{Normal}(\mu, \sigma)$$
 $$\mu \sim \text{Normal}(\text{mean}_1 = 50, \text{sd}_1 = 20)$$
-$$\sigma \sim \text{Normal}(\text{mean}_2 = 15, \text{sd}_2 = 20)$$
-We can fit the model with `quap()`.
+$$\sigma \sim \text{Normal}(\text{mean}_2 = 15, \text{sd}_2 = 20)$$ We
+can fit the model with `quap()`.
 
 ```{r, r-model-descrip}
 model_descrip <- alist(
@@ -44,14 +47,18 @@ quap_income_model <- quap(flist = model_descrip,
 quap_income_post_sample <- extract.samples(quap_income_model, n = 1000)
 ```
 
-If we look at the posterior sample, we can get an idea of our estimates of the *mean* and *standard deviation* of incomes:
+If we look at the posterior sample, we can get an idea of our estimates
+of the *mean* and *standard deviation* of incomes:
 
 ```{r, message = FALSE, warning = FALSE}
 gf_dens(~mu, data = quap_income_post_sample)
 gf_dens(~sigma, data = quap_income_post_sample)
 ```
 
-But what about the distribution of *incomes* we might expect? Specifically, if we simulate many datasets (the same size as our real `fiji` one), how do those distributions compare to the observed distribution of the real data? Do they seem to match up well?
+But what about the distribution of *incomes* we might expect?
+Specifically, if we simulate many datasets (the same size as our real
+`fiji` one), how do those distributions compare to the observed
+distribution of the real data? Do they seem to match up well?
 
 ```{r, generate-posterior-pred-dist}
 income_ppred <- quap_income_post_sample |>
@@ -94,20 +101,28 @@ gf_dens(~ppred, group = ~row_num,
 ```
 
 #### Question: Is this good, or bad? What is going on?
+
 *Stay tuned for Homework 4 for some progress...*
 
-#### Task: Generate  a posterior predictive distribution for your `water_expenses_pp` model fitted with `quap()`.
+#### Task: Generate a posterior predictive distribution for your `water_expenses_pp` model fitted with `quap()`.
 
 ## Predictor!
-We want to reach a point where we can model *multiple* variables at a time, and quantify their associations (if any).
 
-Once we have more than 2 we will use causal diagrams to guide our model design and decide which variables to include in a model.
+We want to reach a point where we can model *multiple* variables at a
+time, and quantify their associations (if any).
 
-We will start, for now, with just two variables though.  Consider the variable you've been working with (`houshold_annual_income` for me, `water_expenses_pp` for you) as the response variable.
+Once we have more than 2 we will use causal diagrams to guide our model
+design and decide which variables to include in a model.
+
+We will start, for now, with just two variables though. Consider the
+variable you've been working with (`houshold_annual_income` for me,
+`water_expenses_pp` for you) as the response variable.
 
 #### Task: identify one quantitative variable that could be a predictor of your response.
 
-*For `household_annual_income`, I will choose `n_adults` as a possible predictor since I think having multiple potential earners in the house will lead to higher incomes for the group.*
+*For `household_annual_income`, I will choose `n_adults` as a possible
+predictor since I think having multiple potential earners in the house
+will lead to higher incomes for the group.*
 
 My model will now be:
 
@@ -117,7 +132,9 @@ $$\beta_0 \sim \text{Normal}(30,20)$$
 $$\beta_1 \sim \text{Normal}(20, 10)$$
 $$\sigma \sim \text{Normal}(15,20)$$
 
-Now, the *first two* lines of the description state  the structure of the model and tell how the likelihood will be determined. The last three are all priors.
+Now, the *first two* lines of the description state the structure of the
+model and tell how the likelihood will be determined. The last three are
+all priors.
 
 #### Question: Can you state in words what each line of the description means? For priors, include statements in terms of income dollars, people, etc.
 
@@ -125,7 +142,7 @@ Now, the *first two* lines of the description state  the structure of the model 
 
 #### Question: $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior for $\beta_1$. Can you explain why, in words? Why didn't I use it here?
 
-#### Task: Generate  a  prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to  generate  your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
+#### Task: Generate a prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to generate your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
 
 #### Task: Fit this model using `quap()`. (Code is given below if you need it - for more challenge try to do it on your own.)
 
@@ -142,21 +159,27 @@ hh_size_income_mod <- quap(
 precis(hh_size_income_mod)
 ```
 
-#### Task/Question: generate and plot a posterior sample and  a  posterior predictive distribution. What do you think?
+#### Task/Question: generate and plot a posterior sample and a posterior predictive distribution. What do you think?
 
 ## What's next?
 
-Think about how you might change  or expand this model.
+Think about how you might change or expand this model.
 
-- How would the code look to fit a model with *more* predictors?
-- Where might  you want to use other distributions - which ones, and why?
-- The model we tried hypothesized a *linear* association between `n_adults` and income. How could we model other situations (for example: nonlinear, variability that increases as the mean income increases, your other ideas?) These additions to the model are **much** easier in a Bayesian framework than a frequentist one!
+-   How would the code look to fit a model with *more* predictors?
+-   Where might you want to use other distributions - which ones, and
+    why?
+-   The model we tried hypothesized a *linear* association between
+    `n_adults` and income. How could we model other situations (for
+    example: nonlinear, variability that increases as the mean income
+    increases, your other ideas?) These additions to the model are
+    **much** easier in a Bayesian framework than a frequentist one!
 
 ## Practice
+
 For your `water_expenses_pp`,
 
-- Describe a  model with one predictor
-- Generate a prior predictive distribution
-- Fit  the model using `quap()`
-- Sample from the posterior and graph the result
-- Generate  a  posterior predictive distribution
+-   Describe a model with one predictor
+-   Generate a prior predictive distribution
+-   Fit the model using `quap()`
+-   Sample from the posterior and graph the result
+-   Generate a posterior predictive distribution

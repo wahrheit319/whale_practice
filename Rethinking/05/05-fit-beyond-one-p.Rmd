@@ -14,11 +14,17 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-library(ggformula)
+library(mosaic)
 library(rethinking)
+library(ggformula)
+library(bayesrules)
 knitr::opts_chunk$set(echo = TRUE)
 theme_set(theme_minimal(base_size = 16))
 fiji <- read_csv('https://sldr.netlify.app/data/fiji-filters.csv')
+```
+
+```{r}
+glimpse(fiji)
 ```
 
 ## What Came Before
@@ -35,7 +41,13 @@ Apparently we have "a model with more than one parameter (but still just one var
 
 #### Question 1: In the `water_expenses_pp` model, which is the **variable** (Hint: it will correspond to a column in your dataset) and what are the **parameters** (quantities you will estimate, a.k.a. get posteriors for by fitting your model)? *It's crucial to be able to clearly identify which is which as you plan a model!*
 
+> The variable is `water_expenses_pp` .
+>
+> The parameters is `n_adults` .
+
 #### Question 2: Which of these may go in a causal diagram: variables, parameters, priors, posteriors, likelihood? (Hint: the causal diagram for the `water_expenses_pp` model we are about to fit will be one node (dot) with *no* arrows.)
+
+> Variables may go in a casual diagram.
 
 ## Challenges
 
@@ -114,6 +126,8 @@ head(prior_pred_dist, 15)
 ```
 
 #### Question 3. Why are some of the income values in my prior predictive distribution `NaN`?
+
+> Standard deviations can't be negative.
 
 So before fitting this model, I should go back to the drawing board!
 
@@ -233,6 +247,10 @@ gf_contour_filled(unscaled_posterior ~ mu + sigma,
 
 #### Question 4. Can you explain in words what we learn (about annual household incomes in Fiji) from the three plots of the posterior that were provided?
 
+> The average household income in Fiji is around 63 with high certainty.
+>
+> The posterior density shows th standard deviation is high, around 80.
+
 ## Posterior Sample
 
 Draw a sample from my model's posterior.
@@ -254,7 +272,153 @@ gf_point(mu ~ sigma, # show both parameters
 
 Repeat the process shown above to fit the model via grid search and then obtain and graph a posterior sample, but for *your* model of `water_expenses_pp`.
 
+n_total
+
+$$\mu \sim \text{Normal}(\text{mean} = 4, \text{sd} = 1)$$
+
+$$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 1)$$
+
+```{r}
+nsim <- 1000
+prior_pred_dist <- tibble(
+  # draw nsim values of mu based on the prior for mu ~ Norm(4, 1)
+  mu = rnorm(nsim, mean = 4, sd = 1),
+  # draw nsim values of sigma based on its prior
+  sigma = runif(nsim, min = 0, max = 1)
+) |>
+  # changing to "row-wise" calculations
+  # R does each calculation on one row at a time
+  rowwise() |>
+  mutate(
+    # use the simulated mu and sigma values
+    # to generate simulated n_total
+    n_total = rnorm(1, mean = mu, sd = sigma)
+  ) |>
+  # go back to normal (not row-wise)
+  ungroup()
+
+# Plot the prior predictive distribution
+gf_histogram(~n_total,
+             data = prior_pred_dist)
+```
+
+```{r}
+# number of conjectures to try for each parameter
+n_grid = 500
+# 
+grid_n_total_model <-
+  # crossing() generates all possible combinations of the values in the vectors it is given, then sorts and arranges the results in a data frame
+  crossing(
+    # possible values to try for mean n_total (spanning from definitely-too-small to definitely-too-big)
+    mu = seq(from = 0, to = 10, length.out = n_grid),
+    # possible values to try for sd of n_total (spanning from definitely-too-small to definitely-too-big)
+    sigma = seq(from = 0.1, to = 2, length.out = n_grid)
+  )
+
+View(grid_n_total_model)
+```
+
+```{r}
+grid_n_total_model <- grid_n_total_model |>
+  mutate(
+    # evaluate the priors for each mu and sigma in the grid
+    prior_mu = dnorm(mu, mean = 4, sd = 1),
+    prior_sigma = dunif(sigma, min = 0, max = 1)
+  )
+
+glimpse(grid_n_total_model)
+```
+
+```{r}
+grid_n_total_model <- grid_n_total_model |>
+  # switch to operating row-wise
+  rowwise() |>
+  mutate(
+    # compute the SUM of the LOG-likelihoods for all the rows of the dataset fiji
+    logL = dnorm(
+      # data
+      fiji$n_total,
+      # conjectured parameter values (from grid):
+      mean = mu,
+      sd = sigma,
+      # ask R to return the ln(density) instead of density
+      log = TRUE
+      ) |>
+      # now we have a list of log-likelihoods as long as the fiji dataset; add them all up to get the joint log-likelihood
+      sum()
+    )|>
+  # go back to normal (not row-wise)
+  ungroup()
+
+glimpse(grid_n_total_model)
+```
+
+```{r}
+grid_n_total_model <- grid_n_total_model |>
+  mutate(
+    # compute the unscaled log-posterior
+    # since posterior = likelihood * prior
+    # ln(posterior) = ln(likelihood) + ln(prior)
+    unscaled_ln_post = logL + log(prior_mu) + log(prior_sigma)
+  )
+glimpse(grid_n_total_model)
+```
+
+```{r}
+grid_n_total_model <- grid_n_total_model |>
+  mutate(
+    # compute the unscaled log-posterior
+    # since posterior = likelihood * prior
+    # ln(posterior) = ln(likelihood) + ln(prior)
+    unscaled_ln_post = logL + log(prior_mu) + log(prior_sigma)
+  )
+glimpse(grid_n_total_model)
+```
+
+```{r}
+grid_n_total_model <- grid_n_total_model |>
+  mutate(
+    unscaled_posterior = exp(unscaled_ln_post)
+  )
+gf_line(unscaled_posterior ~ mu, 
+        data = grid_n_total_model)
+```
+
+```{r}
+grid_n_total_model <- grid_n_total_model |>
+  mutate(
+    unscaled_posterior = exp(unscaled_ln_post - max(unscaled_ln_post))
+  ) |> 
+  filter(is.finite(unscaled_posterior))
+
+# check out the results...plot the posterior
+# each part one by one, then together
+gf_line(unscaled_posterior ~ mu, 
+        data  = grid_n_total_model)
+gf_line(unscaled_posterior ~ sigma, 
+        data  = grid_n_total_model)
+gf_contour_filled(unscaled_posterior ~ mu + sigma,
+                  data = grid_n_total_model) |>
+  # this is just to change the legend title
+  gf_theme(scale_fill_viridis_d("Posterior Density"))
+```
+
 #### Question 5. Describe, show or sketch the posterior you end up with. (Since the dataset is pretty large, we should all agree pretty closely in our conclusions even if we have somewhat different prior choices...)
+
+```{r}
+npsamp <- 10000
+grid_post_sample <- grid_n_total_model |>
+  slice_sample(n = npsamp,
+               replace = TRUE,
+               weight_by = unscaled_posterior)
+
+gf_point(mu ~ sigma, # show both parameters
+         data  = grid_post_sample,
+         alpha = 0.1 # make points semi-transparent
+         )
+```
+
+> The average number of people in a household is around 3.65, with a standard deviation centered around 1.
 
 ## What's next
 
