@@ -266,8 +266,6 @@ gf_dens(~ppred, group = ~row_num,
           inherit = FALSE,
           color = 'darkorange',
           linewidth = 1.5)
-
-
 ```
 
 #### Task: Fit this model using `quap()`. (Code is given below if you need it - for more challenge try to do it on your own.)

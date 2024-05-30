@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(faraway)
-head(fat)
+# head(fat)
 # for more info, type in the R console:
 # ?fat
 ```
@@ -36,15 +36,23 @@ Choose one or more of the options below to practice linear regression. Save your
 
 -   Choose a response variable and a single main predictor. Have a rationale for your choices (even if it's not written down in detail).
 
-    > main predictor: `weight`
+    > main predictor: `density`
     >
     > response: `brozek`
 
 -   Sketch (by pencil or using `dagitty`) a **causal diagram** for this situation. You may want to include other variables from the dataset, or even ones that you *don't* have data on. By using just one predictor and the response, what other key covariates might you be ignoring (if any)?
 
+![casual diagram?](casual_diagram.png)
+
 -   Write out a **description of a model** including your predictor and response variables (only). Use a normal distribution to model your response (your choice of distribution(s) for priors). If needed, use internet research to get background and select priors.
 
+    > $$\text{brozek_i} \sim \text{Normal}(\mu_i, \sigma^2)$$ $$\mu_i \sim \beta_0 + \beta_1 * \text{density_i}$$ $$\beta_0 \sim \text{Normal}(0, 10)$$ $$\beta_1 \sim \text{Normal}(0, 10)$$ $$\sigma \sim \text{Normal}(0, 5)$$
+
 -   Now you can peek at the data...consider making a scatter plot of the response vs the predictor. (`gf_point(response ~ predictor, data = dataset_name)` will do it for you.)
+
+    ```{r}
+    gf_point(brozek ~ density, data = fat)
+    ```
 
 -   Do a **prior predictive check** (generate a prior predictive distribution as a reality check for your priors)
 
