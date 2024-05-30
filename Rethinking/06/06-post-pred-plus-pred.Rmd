@@ -147,7 +147,7 @@ water_expenses_ppred <- quap_water_expenses_post_sample |>
 glimpse(water_expenses_ppred)
 ```
 
-```{r, unnest-ppred}
+```{r}
 # "unnest" results so each observed income is in its own row instead of a list. Now there are nrow(fiji) rows for each mu, sigma combo
 water_expenses_ppred <- water_expenses_ppred |>
   unnest(cols = ppred)
@@ -156,7 +156,7 @@ water_expenses_ppred <- water_expenses_ppred |>
 glimpse(water_expenses_ppred)
 ```
 
-```{r, graph-ppreds}
+```{r}
 # graph simulated datasets - one line for each mu,sigma combo
 # this will take a while unless you reduce n above in extract.samples()!
 gf_dens(~ppred, group = ~row_num, 
@@ -292,7 +292,7 @@ gf_dens(~ppred, group = ~row_num,
 
 #### Task: Fit this model using `quap()`. (Code is given below if you need it - for more challenge try to do it on your own.)
 
-```{r, class.source = 'fold-hide'}
+```{r, message = FALSE, warning = FALSE}
 hh_size_income_mod <- quap(
   flist = alist(
     household_annual_income ~ dnorm(mu, sigma),
@@ -307,7 +307,7 @@ precis(hh_size_income_mod)
 
 #### Task/Question: generate and plot a posterior sample and a posterior predictive distribution. What do you think?
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 model_descrip <- alist(
   household_annual_income ~ dnorm(mu, sigma),
   mu <- beta_0 + beta_1 * n_adults,
