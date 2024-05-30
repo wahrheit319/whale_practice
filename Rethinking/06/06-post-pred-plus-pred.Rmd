@@ -225,7 +225,7 @@ all priors.
 
 #### Question: $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior for $\beta_1$. Can you explain why, in words? Why didn't I use it here?
 
-> #### $\text{Normal}(0,\sigma)$  is often considered an "uninformative" prior because it assumes no prior knowledge about the parameter, allowing the data to influence the posterior more.
+> #### $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior because it assumes no prior knowledge about the parameter, allowing the data to influence the posterior more.
 >
 > You didn't use it here because you don't want the data to primarily
 > influence the posterior.
@@ -234,14 +234,40 @@ all priors.
 
 #### Task: Generate a prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to generate your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
 
-> idk
+> how do i fit dumbme
 
 ```{r, warning = FALSE}
-mu_prior <- rnorm(10000, mean = 178, sd = 20)
-sigma_prior <- runif(10000, min = 0, max = 50)
-height_prior <- rnorm(10000, mean = mu_prior, sd = sigma_prior)
+model_descrip <- alist(
+  water_expenses_pp ~ dnorm(mu, sigma),
+  mu ~ dnorm(mean = 10, sd = 3),
+  sigma ~ dunif(min = 0, max = 3)
+)
 
-gf_histogram(~ height_prior)
+prior_samples <- tibble(
+  mu = rnorm(1000, mean = 10, sd = 3),
+  sigma = runif(1000, min = 0, max = 3)
+)
+
+prior_ppred <- prior_samples |>
+  mutate(row_num = row_number()) |>
+  rowwise() |>
+  mutate(ppred = list(rnorm(nrow(fiji), mean = mu, sd = sigma))) |>
+  ungroup() |>
+  select(row_num, ppred)
+
+prior_ppred <- prior_ppred |>
+  unnest(cols = ppred)
+
+gf_dens(~ppred, group = ~row_num, 
+        data = prior_ppred,
+        alpha = 0.1) |>
+  gf_dens(~water_expenses_pp,
+          data = fiji,
+          inherit = FALSE,
+          color = 'darkorange',
+          linewidth = 1.5)
+
+
 ```
 
 #### Task: Fit this model using `quap()`. (Code is given below if you need it - for more challenge try to do it on your own.)
