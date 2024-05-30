@@ -102,9 +102,73 @@ gf_dens(~ppred, group = ~row_num,
 
 #### Question: Is this good, or bad? What is going on?
 
+> Our posterior prediction distribution is lower and more spread out
+> than the actual data.
+>
+> I think this is good, because... maybe it should be this way... not
+> clever answer... dumb answer...
+
 *Stay tuned for Homework 4 for some progress...*
 
 #### Task: Generate a posterior predictive distribution for your `water_expenses_pp` model fitted with `quap()`.
+
+```{r}
+model_descrip <- alist(
+  # note variable name has to match actual data variable name
+  water_expenses_pp ~ dnorm(mu, sigma),
+  mu ~ dnorm(mean = 10, sd = 3),
+  sigma ~ dunif(min = 0, max = 3)
+)
+
+quap_water_expenses_model <- quap(flist = model_descrip,
+                          data = fiji)
+quap_water_expenses_post_sample <- extract.samples(quap_water_expenses_model, n = 1000)
+```
+
+```{r, message = FALSE, warning = FALSE}
+gf_dens(~mu, data = quap_water_expenses_post_sample)
+gf_dens(~sigma, data = quap_water_expenses_post_sample)
+```
+
+```{r}
+water_expenses_ppred <- quap_water_expenses_post_sample |>
+  # add row numbers to "label" each sampled combo of mu & sigma
+  mutate(row_num = c(1:n())) |>
+  # work one row (one mu, sigma combination) at a time
+  rowwise() |>
+  # simulate a dataset for each row (= each mu, sigma combo)  
+  mutate(ppred = list(rnorm(nrow(fiji), 
+                            mean = mu,
+                            sd = sigma))) |>
+  # keep only the row-ids and the simulated data
+  select(row_num, ppred) 
+
+# note the structure: each row's ppred is a LIST of incomes nrow(fiji) long
+glimpse(water_expenses_ppred)
+```
+
+```{r, unnest-ppred}
+# "unnest" results so each observed income is in its own row instead of a list. Now there are nrow(fiji) rows for each mu, sigma combo
+water_expenses_ppred <- water_expenses_ppred |>
+  unnest(cols = ppred)
+
+# peek at the final result
+glimpse(water_expenses_ppred)
+```
+
+```{r, graph-ppreds}
+# graph simulated datasets - one line for each mu,sigma combo
+# this will take a while unless you reduce n above in extract.samples()!
+gf_dens(~ppred, group = ~row_num, 
+        data = water_expenses_ppred,
+        alpha = 0.1) |>
+  # overlay actual data
+  gf_dens(~water_expenses_pp,
+          data = fiji,
+          inherit = FALSE,
+          color = 'darkorange',
+          linewidth = 1.5)
+```
 
 ## Predictor!
 
