@@ -46,7 +46,7 @@ Choose one or more of the options below to practice linear regression. Save your
 
 -   Write out a **description of a model** including your predictor and response variables (only). Use a normal distribution to model your response (your choice of distribution(s) for priors). If needed, use internet research to get background and select priors.
 
-    > $$\text{brozek_i} \sim \text{Normal}(\mu_i, \sigma^2)$$ $$\mu_i \sim \beta_0 + \beta_1 * \text{density_i}$$ $$\beta_0 \sim \text{Normal}(0, 10)$$ $$\beta_1 \sim \text{Normal}(0, 10)$$ $$\sigma \sim \text{Normal}(0, 5)$$
+    > $$\text{brozek_i} \sim \text{Normal}(\mu_i, \sigma^2)$$ $$\mu_i \sim \beta_0 + \beta_1 * \text{density_i}$$ $$\beta_0 \sim \text{Normal}(0, 10)$$ $$\beta_1 \sim \text{Normal}(0, 10)$$ $$\sigma \sim \text{Uniform}(0, 2)$$
 
 -   Now you can peek at the data...consider making a scatter plot of the response vs the predictor. (`gf_point(response ~ predictor, data = dataset_name)` will do it for you.)
 
@@ -54,7 +54,34 @@ Choose one or more of the options below to practice linear regression. Save your
     gf_point(brozek ~ density, data = fat)
     ```
 
--   Do a **prior predictive check** (generate a prior predictive distribution as a reality check for your priors)
+-   Do a **prior predictive check** (generate a prior predictive distribution as a reality check for your priors.
+
+    ```{r}
+    nsim <- 1000
+
+    beta_0_prior <- rnorm(nsim, mean = 0, sd = 10)
+    beta_1_prior <- rnorm(nsim, mean = 0, sd = 10)
+    sigma_prior <- abs(rnorm(nsim, mean = 0, sd = 2))  
+
+
+    density_values <- seq(0.5, 1.5, length.out = 100)  
+
+    prior_pred_dist <- tibble(
+      beta_0 = sample(beta_0_prior, nsim, replace = TRUE),
+      beta_1 = sample(beta_1_prior, nsim, replace = TRUE),
+      sigma = sample(sigma_prior, nsim, replace = TRUE),
+      density = sample(density_values, nsim, replace = TRUE)
+    ) |>
+      rowwise() |>
+      mutate(
+        brozek = rnorm(1, mean = beta_0 + beta_1 * density, sd = sigma)
+      ) |>
+      ungroup()
+
+    gf_histogram(~brozek,
+                 data = prior_pred_dist, binwidth = 1)
+
+    ```
 
 -   Use `quap()` to fit your model.
 
