@@ -1,0 +1,57 @@
+---
+title: "fat"
+author: "STAT 341, Feb. 13, 2023"
+date: ""
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_download: true
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, message=FALSE}
+library(faraway)
+library(tidyverse)
+library(rethinking)
+library(CalvinBayes)
+library(tidybayes)
+library(rethinking)
+library(ggformula)
+library(bayesplot)
+library(mosaic)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(faraway)
+head(fat)
+# for more info, type in the R console:
+# ?fat
+```
+
+## Instructions
+
+Choose one or more of the options below to practice linear regression. Save your group's work in an Rmd file (that you may later present to the class). The process:
+
+-   Choose a response variable and a single main predictor. Have a rationale for your choices (even if it's not written down in detail).
+
+    > main predictor: `weight`
+    >
+    > response: `brozek`
+
+-   Sketch (by pencil or using `dagitty`) a **causal diagram** for this situation. You may want to include other variables from the dataset, or even ones that you *don't* have data on. By using just one predictor and the response, what other key covariates might you be ignoring (if any)?
+
+-   Write out a **description of a model** including your predictor and response variables (only). Use a normal distribution to model your response (your choice of distribution(s) for priors). If needed, use internet research to get background and select priors.
+
+-   Now you can peek at the data...consider making a scatter plot of the response vs the predictor. (`gf_point(response ~ predictor, data = dataset_name)` will do it for you.)
+
+-   Do a **prior predictive check** (generate a prior predictive distribution as a reality check for your priors)
+
+-   Use `quap()` to fit your model.
+
+-   Think about how you might graph your **posterior distributions.** You can at least make a density plot or two. But...what do those mean? Are they easy to interpret? What is *really* most relevant to show? Consider carefully and sketch what you'd *want* to show. If you are bold and confident with your R skills, you can consider also making the graphs you envision. (Stay tuned for Wednesday.)
+
+-   Maybe, for extra challenge: Generate and graph a **posterior predictive distribution**, comparing it with your observed data.
+
+-   Considering all you have done...what can you conclude?
