@@ -183,6 +183,10 @@ variable you've been working with (`houshold_annual_income` for me,
 
 #### Task: identify one quantitative variable that could be a predictor of your response.
 
+> I will choose `n_total` as a possible predictor since I think having
+> multiple potential water user in the house will lead to higher water
+> expense for the group.
+
 *For `household_annual_income`, I will choose `n_adults` as a possible
 predictor since I think having multiple potential earners in the house
 will lead to higher incomes for the group.*
@@ -203,7 +207,16 @@ all priors.
 
 #### Question: What's with the $i$ subscripts?
 
+> different $\mu$ distributed s
+
 #### Question: $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior for $\beta_1$. Can you explain why, in words? Why didn't I use it here?
+
+> #### $\text{Normal}(0,\sigma)$  is often considered an "uninformative" prior because it assumes no prior knowledge about the parameter, allowing the data to influence the posterior more.
+>
+> You didn't use it here because you don't want the data to primarily
+> influence the posterior.
+>
+> There has to be a better answer...
 
 #### Task: Generate a prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to generate your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
 
