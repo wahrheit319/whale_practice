@@ -184,8 +184,8 @@ variable you've been working with (`houshold_annual_income` for me,
 #### Task: identify one quantitative variable that could be a predictor of your response.
 
 > I will choose `n_total` as a possible predictor since I think having
-> multiple potential water user in the house will lead to higher water
-> expense for the group.
+> multiple potential water consumer in the house will lead to higher
+> water expense for the group.
 
 *For `household_annual_income`, I will choose `n_adults` as a possible
 predictor since I think having multiple potential earners in the house
@@ -205,9 +205,23 @@ all priors.
 
 #### Question: Can you state in words what each line of the description means? For priors, include statements in terms of income dollars, people, etc.
 
+> 1.  Household annual income is normally distributed with mean $\mu_i$
+>     and $\sigma$.
+> 2.  The $\mu_i$ is base income $\beta_0$ + additional income per adult
+>     $\beta_1$ \* b adults.
+> 3.  Prior base income per household $\beta_0$ is normally distributed
+>     with a mean of 30000 dollars and a standard deviation of 20000
+>     dollars.
+> 4.  Prior additional income per adult $\beta_1$ is normally
+>     distributed with a mean of 20000 dollars and a standard deviation
+>     of 10000 dollars.
+> 5.  The standard deviation of household annual income is normally
+>     distributed with a mean of 15000 dollars and a standard deviation
+>     of 20000 dollars
+
 #### Question: What's with the $i$ subscripts?
 
-> different $\mu$ distributed s
+> Different $\mu_i$ represents different households.
 
 #### Question: $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior for $\beta_1$. Can you explain why, in words? Why didn't I use it here?
 
@@ -219,6 +233,14 @@ all priors.
 > There has to be a better answer...
 
 #### Task: Generate a prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to generate your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
+
+```{r, warning = FALSE}
+mu_prior <- rnorm(10000, mean = 178, sd = 20)
+sigma_prior <- runif(10000, min = 0, max = 50)
+height_prior <- rnorm(10000, mean = mu_prior, sd = sigma_prior)
+
+gf_histogram(~ height_prior)
+```
 
 #### Task: Fit this model using `quap()`. (Code is given below if you need it - for more challenge try to do it on your own.)
 
