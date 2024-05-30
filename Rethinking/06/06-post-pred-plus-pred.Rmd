@@ -105,7 +105,8 @@ gf_dens(~ppred, group = ~row_num,
 > Our posterior prediction distribution is lower and more spread out
 > than the actual data.
 >
-> I think this is good, because...? normalized? integrated to 1?
+> I think this is bad because the posterior predictive distribution is
+> not capturing the true data? I'm not sure
 
 *Stay tuned for Homework 4 for some progress...*
 
@@ -221,47 +222,68 @@ all priors.
 
 #### Question: What's with the $i$ subscripts?
 
-> Different $\mu_i$ represents different households.
+> Different $\mu_i$ represents different individual household.
 
 #### Question: $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior for $\beta_1$. Can you explain why, in words? Why didn't I use it here?
 
-> #### $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior because it assumes no prior knowledge about the parameter, allowing the data to influence the posterior more.
+> $\text{Normal}(0, \sigma)$ is often considered an "uninformative"
+> prior because it assumes no prior knowledge about the parameter,
+> allowing the data to influence the posterior more.
 >
-> You didn't use it here because you don't want the data to primarily
-> influence the posterior.
->
-> There has to be a better answer...
+> You didn't use it here because each additional adult increases income,
+> so you want to have a more informative prior.
 
 #### Task: Generate a prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to generate your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
 
-> how do i fit dumbme
+```{r}
+n_samples <- 10000
+
+beta_0_prior <- rnorm(n_samples, mean = 30, sd = 20)
+beta_1_prior <- rnorm(n_samples, mean = 20, sd = 10)
+sigma_prior <- abs(rnorm(n_samples, mean = 15, sd = 20)) 
+
+mu_prior <- beta_0_prior + beta_1_prior * mean(fiji$n_adults, na.rm = TRUE)
+prior_predictive_distribution <- rnorm(n_samples, mean = mu_prior, sd = sigma_prior)
+
+gf_histogram(~prior_predictive_distribution)
+```
 
 ```{r, warning = FALSE}
-model_descrip <- alist(
-  water_expenses_pp ~ dnorm(mu, sigma),
-  mu ~ dnorm(mean = 10, sd = 3),
-  sigma ~ dunif(min = 0, max = 3)
-)
+# Number of prior predictive samples
+n_samples <- 10000
 
 prior_samples <- tibble(
-  mu = rnorm(1000, mean = 10, sd = 3),
-  sigma = runif(1000, min = 0, max = 3)
+  beta_0 = rnorm(n_samples, mean = 30, sd = 20),
+  beta_1 = rnorm(n_samples, mean = 20, sd = 10),
+  sigma = abs(rnorm(n_samples, mean = 15, sd = 20))  
 )
 
 prior_ppred <- prior_samples |>
-  mutate(row_num = row_number()) |>
+  # add row numbers to "label" each sampled combo of beta_0, beta_1, and sigma
+  mutate(row_num = c(1:n_samples)) |>
+  # work one row (one beta_0, beta_1, sigma combination) at a time
   rowwise() |>
-  mutate(ppred = list(rnorm(nrow(fiji), mean = mu, sd = sigma))) |>
-  ungroup() |>
+  # simulate a dataset for each row (= each beta_0, beta_1, sigma combo)
+  mutate(ppred = list(rnorm(nrow(fiji),
+                            mean = beta_0 + beta_1 * fiji$n_adults,
+                            sd = sigma))) |>
+  # keep only the row-ids and the simulated data
   select(row_num, ppred)
 
+# "unnest" results so each observed income is in its own row instead of a list. Now there are nrow(fiji) rows for each beta_0, beta_1, sigma combo
 prior_ppred <- prior_ppred |>
   unnest(cols = ppred)
 
+# Peek at the final result
+glimpse(prior_ppred)
+```
+
+```{r}
 gf_dens(~ppred, group = ~row_num, 
         data = prior_ppred,
         alpha = 0.1) |>
-  gf_dens(~water_expenses_pp,
+  # overlay actual data
+  gf_dens(~household_annual_income,
           data = fiji,
           inherit = FALSE,
           color = 'darkorange',
@@ -284,6 +306,64 @@ precis(hh_size_income_mod)
 ```
 
 #### Task/Question: generate and plot a posterior sample and a posterior predictive distribution. What do you think?
+
+```{r}
+model_descrip <- alist(
+  household_annual_income ~ dnorm(mu, sigma),
+  mu <- beta_0 + beta_1 * n_adults,
+  beta_0 ~ dnorm(mean = 30, sd = 20),
+  beta_1 ~ dnorm(mean = 20, sd = 10),
+  sigma ~ dnorm(mean = 15, sd = 20)
+)
+
+quap_income_model <- quap(flist = model_descrip,
+                          data = fiji)
+quap_income_post_sample <- extract.samples(quap_income_model, n = 1000)
+
+gf_dens(~beta_0, data = quap_income_post_sample) 
+gf_dens(~beta_1, data = quap_income_post_sample)
+gf_dens(~sigma, data = quap_income_post_sample) 
+```
+
+```{r}
+posterior_ppred <- quap_income_post_sample |>
+  # add row numbers to "label" each sampled of beta_0, beta_1, and sigma
+  mutate(row_num = c(1:n())) |>
+  # work one row (one beta_0, beta_1, sigma combination) at a time
+  rowwise() |>
+  # simulate a dataset for each row (= each beta_0, beta_1, sigma combo)
+  mutate(ppred = list(rnorm(nrow(fiji),
+                            mean = beta_0 + beta_1 * fiji$n_adults,
+                            sd = sigma))) |>
+  # keep only the row-ids and the simulated data
+  select(row_num, ppred)
+
+# note the structure: each row's ppred is a LIST of incomes nrow(fiji) long
+glimpse(posterior_ppred)
+```
+
+```{r}
+# "unnest" results so each observed income is in its own row instead of a list. Now there are nrow(fiji) rows for each beta_0, beta_1, sigma combo
+posterior_ppred <- posterior_ppred |>
+  unnest(cols = ppred)
+
+# Peek at the final result
+glimpse(posterior_ppred)
+```
+
+```{r}
+# graph simulated datasets - one line for each mu,sigma combo
+# this will take a while unless you reduce n above in extract.samples()!
+gf_dens(~ppred, group = ~row_num, 
+        data = posterior_ppred,
+        alpha = 0.1) |>
+  # overlay actual data
+  gf_dens(~household_annual_income,
+          data = fiji,
+          inherit = FALSE,
+          color = 'darkorange',
+          linewidth = 1.5)
+```
 
 ## What's next?
 

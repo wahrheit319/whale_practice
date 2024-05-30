@@ -194,7 +194,7 @@ Let's consider modeling the `water_expenses_pp` variable, which is water expense
 >
 > $$\mu \sim \text{Normal}(\text{mean} = 10, \text{sd} = 3)$$
 >
-> $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 15)$$
+> $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 3)$$
 
 ## More time?
 
