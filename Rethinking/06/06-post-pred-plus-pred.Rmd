@@ -105,8 +105,7 @@ gf_dens(~ppred, group = ~row_num,
 > Our posterior prediction distribution is lower and more spread out
 > than the actual data.
 >
-> I think this is good, because... maybe it should be this way... not
-> clever answer... dumb answer...
+> I think this is good, because...?
 
 *Stay tuned for Homework 4 for some progress...*
 
