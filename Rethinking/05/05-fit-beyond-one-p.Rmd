@@ -3,13 +3,13 @@ title: "Fit Models Beyond One Proportion"
 author: "STAT 341, Spring 2023"
 date: "2023-02-03"
 output:
-  pdf_document:
-    toc: yes
   html_document:
     toc: yes
     toc_float: yes
     code_download: yes
     self_contained: yes
+  pdf_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -43,11 +43,11 @@ Apparently we have "a model with more than one parameter (but still just one var
 
 > The variable is `water_expenses_pp` .
 >
-> The parameters is `n_adults` .
+> The parameters are mu and sigma.
 
 #### Question 2: Which of these may go in a causal diagram: variables, parameters, priors, posteriors, likelihood? (Hint: the causal diagram for the `water_expenses_pp` model we are about to fit will be one node (dot) with *no* arrows.)
 
-> Variables may go in a casual diagram.
+> Variables.
 
 ## Challenges
 
@@ -127,7 +127,7 @@ head(prior_pred_dist, 15)
 
 #### Question 3. Why are some of the income values in my prior predictive distribution `NaN`?
 
-> Standard deviations can't be negative.
+> Some standard deviations are negative, which leads to NaN income.
 
 So before fitting this model, I should go back to the drawing board!
 
@@ -247,9 +247,11 @@ gf_contour_filled(unscaled_posterior ~ mu + sigma,
 
 #### Question 4. Can you explain in words what we learn (about annual household incomes in Fiji) from the three plots of the posterior that were provided?
 
-> The average household income in Fiji is around 63 with high certainty.
+> The average household income in Fiji is around 54 with high certainty.
 >
-> The posterior density shows th standard deviation is high, around 80.
+> The standard deviation for household income in Fiji is around 80 with high certainty.
+>
+> We strongly believe the mean is around 54 and standard deviation is around 80.
 
 ## Posterior Sample
 
@@ -272,33 +274,33 @@ gf_point(mu ~ sigma, # show both parameters
 
 Repeat the process shown above to fit the model via grid search and then obtain and graph a posterior sample, but for *your* model of `water_expenses_pp`.
 
-n_total
-
-$$\mu \sim \text{Normal}(\text{mean} = 4, \text{sd} = 1)$$
-
-$$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 1)$$
+> $$\text{waterExpensesPp}_i \sim \text{Normal}(\mu, \sigma)$$
+>
+> $$\mu \sim \text{Normal}(\text{mean} = 10, \text{sd} = 3)$$
+>
+> $$\sigma \sim \text{Unif}(\text{min} = 0, \text{max} = 3)$$
 
 ```{r}
 nsim <- 1000
 prior_pred_dist <- tibble(
   # draw nsim values of mu based on the prior for mu ~ Norm(4, 1)
-  mu = rnorm(nsim, mean = 4, sd = 1),
+  mu = rnorm(nsim, mean = 10, sd = 3),
   # draw nsim values of sigma based on its prior
-  sigma = runif(nsim, min = 0, max = 1)
+  sigma = runif(nsim, min = 0, max = 3)
 ) |>
   # changing to "row-wise" calculations
   # R does each calculation on one row at a time
   rowwise() |>
   mutate(
     # use the simulated mu and sigma values
-    # to generate simulated n_total
-    n_total = rnorm(1, mean = mu, sd = sigma)
+    # to generate simulated water_expenses_pp
+    water_expenses_pp = rnorm(1, mean = mu, sd = sigma)
   ) |>
   # go back to normal (not row-wise)
   ungroup()
 
 # Plot the prior predictive distribution
-gf_histogram(~n_total,
+gf_histogram(~water_expenses_pp,
              data = prior_pred_dist)
 ```
 
@@ -306,86 +308,77 @@ gf_histogram(~n_total,
 # number of conjectures to try for each parameter
 n_grid = 500
 # 
-grid_n_total_model <-
+grid_water_expenses_pp_model <-
   # crossing() generates all possible combinations of the values in the vectors it is given, then sorts and arranges the results in a data frame
   crossing(
-    # possible values to try for mean n_total (spanning from definitely-too-small to definitely-too-big)
-    mu = seq(from = 0, to = 10, length.out = n_grid),
-    # possible values to try for sd of n_total (spanning from definitely-too-small to definitely-too-big)
-    sigma = seq(from = 0.1, to = 2, length.out = n_grid)
+    # possible values to try for mean water_expenses_pp (spanning from definitely-too-small to definitely-too-big)
+    mu = seq(from = 0, to = 20, length.out = n_grid),
+    # possible values to try for sd of water_expenses_pp (spanning from definitely-too-small to definitely-too-big)
+    sigma = seq(from = 0.1, to = 5, length.out = n_grid)
   )
 
-View(grid_n_total_model)
+View(grid_water_expenses_pp_model)
 ```
 
 ```{r}
-grid_n_total_model <- grid_n_total_model |>
+grid_water_expenses_pp_model <- grid_water_expenses_pp_model |>
   mutate(
     # evaluate the priors for each mu and sigma in the grid
-    prior_mu = dnorm(mu, mean = 4, sd = 1),
-    prior_sigma = dunif(sigma, min = 0, max = 1)
+    prior_mu = dnorm(mu, mean = 10, sd = 3),
+    prior_sigma = dunif(sigma, min = 0, max = 3)
   )
 
-glimpse(grid_n_total_model)
+glimpse(grid_water_expenses_pp_model)
 ```
 
 ```{r}
-grid_n_total_model <- grid_n_total_model |>
+grid_water_expenses_pp_model <- grid_water_expenses_pp_model |>
   # switch to operating row-wise
   rowwise() |>
   mutate(
     # compute the SUM of the LOG-likelihoods for all the rows of the dataset fiji
     logL = dnorm(
       # data
-      fiji$n_total,
-      # conjectured parameter values (from grid):
+      fiji$water_expenses_pp,
+      # conjectured parameter  values (from grid):
       mean = mu,
       sd = sigma,
       # ask R to return the ln(density) instead of density
       log = TRUE
       ) |>
-      # now we have a list of log-likelihoods as long as the fiji dataset; add them all up to get the joint log-likelihood
+      # now we have  a list of log-likelihoods as long as the fiji dataset; add them all up to get the joint log-likelihood
       sum()
     )|>
   # go back to normal (not row-wise)
   ungroup()
 
-glimpse(grid_n_total_model)
+glimpse(grid_water_expenses_pp_model)
 ```
 
 ```{r}
-grid_n_total_model <- grid_n_total_model |>
+grid_water_expenses_pp_model <- grid_water_expenses_pp_model |>
   mutate(
     # compute the unscaled log-posterior
     # since posterior = likelihood * prior
     # ln(posterior) = ln(likelihood) + ln(prior)
     unscaled_ln_post = logL + log(prior_mu) + log(prior_sigma)
   )
-glimpse(grid_n_total_model)
+glimpse(grid_water_expenses_pp_model)
 ```
 
 ```{r}
-grid_n_total_model <- grid_n_total_model |>
+grid_water_expenses_pp_model <- grid_water_expenses_pp_model |>
   mutate(
     # compute the unscaled log-posterior
     # since posterior = likelihood * prior
     # ln(posterior) = ln(likelihood) + ln(prior)
     unscaled_ln_post = logL + log(prior_mu) + log(prior_sigma)
   )
-glimpse(grid_n_total_model)
+glimpse(grid_water_expenses_pp_model)
 ```
 
 ```{r}
-grid_n_total_model <- grid_n_total_model |>
-  mutate(
-    unscaled_posterior = exp(unscaled_ln_post)
-  )
-gf_line(unscaled_posterior ~ mu, 
-        data = grid_n_total_model)
-```
-
-```{r}
-grid_n_total_model <- grid_n_total_model |>
+grid_water_expenses_pp_model <- grid_water_expenses_pp_model |>
   mutate(
     unscaled_posterior = exp(unscaled_ln_post - max(unscaled_ln_post))
   ) |> 
@@ -394,11 +387,11 @@ grid_n_total_model <- grid_n_total_model |>
 # check out the results...plot the posterior
 # each part one by one, then together
 gf_line(unscaled_posterior ~ mu, 
-        data  = grid_n_total_model)
+        data  = grid_water_expenses_pp_model)
 gf_line(unscaled_posterior ~ sigma, 
-        data  = grid_n_total_model)
+        data  = grid_water_expenses_pp_model)
 gf_contour_filled(unscaled_posterior ~ mu + sigma,
-                  data = grid_n_total_model) |>
+                  data = grid_water_expenses_pp_model) |>
   # this is just to change the legend title
   gf_theme(scale_fill_viridis_d("Posterior Density"))
 ```
@@ -407,7 +400,7 @@ gf_contour_filled(unscaled_posterior ~ mu + sigma,
 
 ```{r}
 npsamp <- 10000
-grid_post_sample <- grid_n_total_model |>
+grid_post_sample <- grid_water_expenses_pp_model |>
   slice_sample(n = npsamp,
                replace = TRUE,
                weight_by = unscaled_posterior)
@@ -418,7 +411,7 @@ gf_point(mu ~ sigma, # show both parameters
          )
 ```
 
-> The average number of people in a household is around 3.65, with a standard deviation centered around 1.
+> The average water expenses per person is between 0.3 and 0.8, with a standard deviation centered around 2.4.
 
 ## What's next
 
