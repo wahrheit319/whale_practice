@@ -411,7 +411,7 @@ gf_point(mu ~ sigma, # show both parameters
          )
 ```
 
-> The average water expenses per person is between 0.3 and 0.8, with a standard deviation centered around 2.4.
+> The posterior predictive distribution shows average water expenses per person is between 0.3 and 0.8, with a standard deviation centered around 2.4.
 
 ## What's next
 

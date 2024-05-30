@@ -105,7 +105,7 @@ gf_dens(~ppred, group = ~row_num,
 > Our posterior prediction distribution is lower and more spread out
 > than the actual data.
 >
-> I think this is good, because...?
+> I think this is good, because...? normalized? integrated to 1?
 
 *Stay tuned for Homework 4 for some progress...*
 
@@ -233,6 +233,8 @@ all priors.
 > There has to be a better answer...
 
 #### Task: Generate a prior predictive distribution for this model. (Start with the code above for the *posterior* predictive distribution -- but you'll need to generate your own draws from the priors instead of starting with a posterior sample.) Describe (or implement) any changes you think are needed.
+
+> idk
 
 ```{r, warning = FALSE}
 mu_prior <- rnorm(10000, mean = 178, sd = 20)
