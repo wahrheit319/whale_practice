@@ -88,6 +88,10 @@ brozek_density_model <- quap(
 precis(brozek_density_model)
 ```
 
+```{r}
+plot(precis(brozek_density_model))
+```
+
 -   Think about how you might graph your **posterior distributions.** You can at least make a density plot or two. But...what do those mean? Are they easy to interpret? What is *really* most relevant to show? Consider carefully and sketch what you'd *want* to show. If you are bold and confident with your R skills, you can consider also making the graphs you envision. (Stay tuned for Wednesday.)
 
 ```{r, message = FALSE, warning = FALSE}
