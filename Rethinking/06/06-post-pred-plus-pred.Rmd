@@ -226,6 +226,9 @@ all priors.
 
 #### Question: $\text{Normal}(0,\sigma)$ is often considered an "uninformative" prior for $\beta_1$. Can you explain why, in words? Why didn't I use it here?
 
+> An uninformative prior is a prior that has minimal influence on the
+> inference.
+>
 > $\text{Normal}(0, \sigma)$ is often considered an "uninformative"
 > prior because it assumes no prior knowledge about the parameter,
 > allowing the data to influence the posterior more.
