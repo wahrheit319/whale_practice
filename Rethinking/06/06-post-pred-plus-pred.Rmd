@@ -106,7 +106,8 @@ gf_dens(~ppred, group = ~row_num,
 > than the actual data.
 >
 > I think this is bad because the posterior predictive distribution is
-> not capturing the true data? I'm not sure
+> not capturing the true data, meaning we are missing some important
+> variables in the model.
 
 *Stay tuned for Homework 4 for some progress...*
 
@@ -367,6 +368,8 @@ gf_dens(~ppred, group = ~row_num,
           color = 'darkorange',
           linewidth = 1.5)
 ```
+
+> The posterior predictive distribution is a bit different than the actual data, maybe we need more variables, maybe it is correct.
 
 ## What's next?
 
