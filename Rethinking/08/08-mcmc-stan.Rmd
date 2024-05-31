@@ -200,4 +200,5 @@ glimpse(psamp)
 ```
 
 - Can you get it running?
+> not yet
 - Is the posterior similar to what you got with grid search or `quap()`?
