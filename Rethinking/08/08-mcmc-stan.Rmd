@@ -17,6 +17,7 @@ library(ggformula)
 library(rstan)
 library(bayesplot)
 library(faraway)
+library(rstan)
 knitr::opts_chunk$set(echo = TRUE)
 options(mc.cores = parallel::detectCores())
 theme_set(theme_minimal(base_size = 18))
@@ -59,33 +60,9 @@ You can save a Stan program in a dedicated flat text file, or a string in R (sho
 - parameters: what parameters will the model produce posteriors for?
 - model: how is the likelihood defined, and what are the priors?
 
-```{r, stan-ruggedness}
-stan_program <- '
-data {
-  int<lower=1> n;     // number of observations
-  vector[n] log_gdp_std;    // response
-  vector[n] rugged_std;     // predictor
-  array[n] int region;            // categorical predictor, africa or not
-}
-parameters {
-  real<lower=0> sigma; // std of response, single continuous value
-  vector[2] a; // vector of two numeric values: intercepts for Africa and Not Africa
-  vector[2] b; // vector of two numeric values: slopes for Africa and Not Africa
-}
-model {
-  vector[n] mu; // vector of n values: expected log_gdp_std for each observation
-  for (i in 1:n) { // loop over the n cases in the dataset to estimate mu_i values
-    mu[i] = a[region[i]] + b[region[i]] * (rugged_std[i] - 0.215); // expected log_gdp_std is region-specific intercept + region-specific slope * (rugged_std = 0.215)
-  }
-  a ~ normal(1, 0.1); // prior for both intercepts
-  b ~ normal(0, 0.3); // prior for both slopes
-  sigma ~ exponential(1); // prior for sigma
-  log_gdp_std ~ normal(mu, sigma); // defining likelihood in terms of mus and sigma
-}
-'
-
+```{r}
 # fit the model defined above to the stan_data on ruggedness and GDP
-rugged_model <- stan(model_code = stan_program, data = stan_data)
+rugged_model <- stan(file = "income.stan", data = stan_data)
 ```
 
 We will learn more about how to "tell" Stan things in Stan programs as we go. But for now, note 2 very useful reference resources:
@@ -95,11 +72,11 @@ We will learn more about how to "tell" Stan things in Stan programs as we go. Bu
 
 ## Viewing Results
 
-```{r, stan-summary}
+```{r}
 rugged_model
 ```
 
-```{r, stan-trace}
+```{r}
 mcmc_trace(rugged_model)
 ```
 
@@ -107,7 +84,7 @@ mcmc_trace(rugged_model)
 
 To get the post-warmup samples from the posterior, in the form of a data frame, from a fitted Stan model in R:
 
-```{r, post-samp-stan}
+```{r}
 psamp <- as.data.frame(rugged_model)
 glimpse(psamp)
 ```
@@ -140,51 +117,27 @@ fat_data <- fat |>
     density_std = (density - mean(density)) / sd(density),
     brozek_std = (brozek - mean(brozek)) / sd(brozek)
   ) |> 
-  drop_na(density, brozek) |>
-  select(density, brozek)
+  drop_na(density_std, brozek_std)
 
 # prepare data for use in Stan
-stan_data <- compose_data(fat_data)
+fat_stan_data <- compose_data(fat_data)
 nrow(fat_data)
 ```
 
-```{r, stan-ruggedness}
-stan_program <- '
-data {
-  int<lower=1> n;     // number of observations
-  vector[n] brozek_std;    // response
-  vector[n] density_std;     // predictor
-}
-parameters {
-  real beta_0; 
-  real beta_1; 
-  real<lower=0> sigma; 
-}
-model {
-  vector[n] mu; // vector of n values: expected log_gdp_std for each observation
-  for (i in 1:n) { // loop over the n cases in the dataset to estimate mu_i values
-    mu[i] = beta_0 + beta_1 * density_std[i];
-  }
-  beta_0 ~ normal(0, 10);
-  beta_1 ~ normal(0, 10);
-  sigma ~ uniform(0, 10);
-  brozek_std ~ normal(mu, sigma);
-}
-'
-
+```{r}
 # fit the model defined above to the stan_data on density and brozek
-fat_model <- stan(model_code = stan_program, data = stan_data)
+fat_model <- stan(file = "fat.stan", data = fat_stan_data)
 ```
 
-```{r, stan-summary}
+```{r}
 fat_model
 ```
 
-```{r, stan-trace}
+```{r}
 mcmc_trace(fat_model)
 ```
 
-```{r, post-samp-stan}
+```{r}
 psamp <- as.data.frame(fat_model)
 glimpse(psamp)
 ```
